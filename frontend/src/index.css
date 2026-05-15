@@ -1,0 +1,121 @@
+/* RESET */
+* {
+  margin: 0;
+
+  padding: 0;
+
+  box-sizing: border-box;
+}
+
+/* LIGHT THEME DEFAULT */
+:root {
+  --bg: #e5e9ec87;
+
+  --text: #111111;
+
+  --muted: #757679;
+
+  --card: #ffffff;
+
+  --card-hover: #f3f4f6;
+
+  --border: rgba(0, 0, 0, 0.08);
+
+  --primary: #ea752d;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+/* DARK THEME */
+body[data-theme="dark"] {
+  --bg: #050510;
+
+  --text: #ffffff;
+
+  --muted: #97979b;
+
+  --card: #111118;
+
+  --card-hover: #181822;
+
+  --border: rgba(255, 255, 255, 0.06);
+
+  --primary: #ee7b3d;
+
+  --shadow: 0 10px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* BODY */
+body {
+  background: var(--bg);
+
+  color: var(--text);
+
+  font-family: "Syne", sans-serif;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
+
+  -webkit-font-smoothing: antialiased;
+
+  overflow-x: hidden;
+}
+
+/* LINKS */
+a {
+  text-decoration: none;
+
+  color: inherit;
+}
+
+/* BUTTONS */
+button {
+  font-family: "Syne", sans-serif;
+
+  border: none;
+
+  outline: none;
+}
+
+/* INPUTS */
+input,
+textarea {
+  font-family: inherit;
+
+  outline: none;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+  width: 7px;
+
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* GLOBAL CARD HOVER */
+.card-hover {
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+
+  background: var(--card-hover);
+}
