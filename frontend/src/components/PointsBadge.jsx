@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react";
 
+import { useUser } from "@clerk/clerk-react";
+
 import { getUserStats } from "../services/api";
 
 const LEVEL_COLORS = {
   Beginner: "var(--primary)",
-
   Developer: "var(--primary)",
-
   Pro: "var(--primary)",
-
   Expert: "var(--primary)",
-
   Master: "var(--primary)",
 };
 
 export default function PointsBadge({ refreshTrigger }) {
-  const clerkId = "test_user_1";
+  const { user } = useUser();
 
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
+    if (!user) return;
+
     let mounted = true;
 
     const loadStats = async () => {
       try {
-        const res = await getUserStats(clerkId);
+        const res = await getUserStats();
 
         console.log("POINT BADGE:", res.data);
 
@@ -41,11 +41,11 @@ export default function PointsBadge({ refreshTrigger }) {
     return () => {
       mounted = false;
     };
-  }, [refreshTrigger]);
+  }, [refreshTrigger, user]);
 
-  if (!stats) return null;
+  if (!user) return null;
 
-  const level = stats.difficulty_info?.level || "Developer";
+  const level = stats?.level || stats?.difficulty_info?.level || "Beginner";
 
   const color = LEVEL_COLORS[level] || "var(--primary)";
 
@@ -53,77 +53,86 @@ export default function PointsBadge({ refreshTrigger }) {
     <div
       style={{
         display: "flex",
-
         alignItems: "center",
-
-        gap: "8px",
-
+        gap: "10px",
         background: "var(--card)",
-
         border: "1px solid var(--border)",
-
-        borderRadius: "20px",
-
-        padding: "5px 12px 5px 5px",
+        borderRadius: "999px",
+        padding: "6px 12px 6px 6px",
+        cursor: "pointer",
+        transition: "0.2s ease",
       }}
     >
       {/* Avatar */}
       <div
         style={{
-          width: "26px",
-
-          height: "26px",
-
+          width: "34px",
+          height: "34px",
           borderRadius: "50%",
-
+          overflow: "hidden",
           background: `linear-gradient(
             135deg,
             ${color},
             var(--primary)
           )`,
-
           display: "flex",
-
           alignItems: "center",
-
           justifyContent: "center",
-
-          fontSize: "11px",
-
+          fontSize: "14px",
           fontWeight: 700,
-
           color: "#fff",
-
           fontFamily: "'Space Mono', monospace",
+          flexShrink: 0,
         }}
       >
-        C
+        {user.imageUrl ? (
+          <img
+            src={user.imageUrl}
+            alt="profile"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        ) : (
+          (user.fullName || user.firstName || "U").charAt(0).toUpperCase()
+        )}
       </div>
 
       {/* User Info */}
-      <div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          lineHeight: 1.1,
+        }}
+      >
         <div
           style={{
-            fontSize: "12px",
-
+            fontSize: "13px",
             color: "var(--text)",
-
-            fontWeight: 600,
+            fontWeight: 700,
+            maxWidth: "120px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
           }}
         >
-          Chetan
+          {user.fullName ||
+            user.username ||
+            user.primaryEmailAddress?.emailAddress}
         </div>
 
         <div
           style={{
-            fontSize: "10px",
-
+            fontSize: "11px",
             color,
-
+            fontWeight: 600,
             fontFamily: "'Space Mono', monospace",
           }}
         >
-          {level} · {stats.total_points || 0} pts
+          {level} · {stats?.total_points || 0} pts
         </div>
       </div>
     </div>

@@ -6,15 +6,13 @@ import TimerDisplay from "../components/TimerDisplay";
 
 import { submitBugFix } from "../services/api";
 
-const TEST_CLERK_ID = "test_user_1";
-
 const card = {
   background: "var(--card)",
 
   borderRadius: "12px",
 };
 
-export default function DailyBugFix({ challenge, onBack }) {
+export default function DailyBugFix({ challenge, onBack, setRefreshPoints }) {
   const initialCode = Array.isArray(challenge?.content?.faulty_code_lines)
     ? challenge.content.faulty_code_lines.join("\n")
     : challenge?.content?.buggy_code || "";
@@ -42,8 +40,6 @@ export default function DailyBugFix({ challenge, onBack }) {
       const timeTaken = Math.floor((Date.now() - startTime) / 1000);
 
       const res = await submitBugFix({
-        clerk_id: TEST_CLERK_ID,
-
         challenge_id: challenge.challenge_id,
 
         daily_challenge_id: challenge.daily_challenge_id,
@@ -57,6 +53,7 @@ export default function DailyBugFix({ challenge, onBack }) {
 
       if (res.data.is_fixed) {
         setCompleted(true);
+        setRefreshPoints((prev) => prev + 1);
       }
     } catch (err) {
       console.error(err);

@@ -20,8 +20,6 @@ export default function SystemDesign({ setRefreshPoints }) {
 
   const [submitted, setSubmitted] = useState(false);
 
-  const clerkId = "test_user_1";
-
   const [startTime, setStartTime] = useState(() => Date.now());
 
   const generate = async () => {
@@ -58,8 +56,6 @@ export default function SystemDesign({ setRefreshPoints }) {
       setSubmitting(true);
 
       const res = await submitSystemDesign({
-        clerk_id: clerkId,
-
         challenge_id: challenge.challenge_id,
 
         answer_text: answer,

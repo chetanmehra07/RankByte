@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from services.clerk_auth import verify_clerk_token
 from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
@@ -36,11 +37,12 @@ class SystemDesignSubmissionRequest(BaseModel):
 
 
 @router.post("/code")
-async def submit_code(request: CodeSubmissionRequest, db: Session = Depends(get_db)):
-    TEST_CLERK_ID = "test_user_1"
+async def submit_code(request: CodeSubmissionRequest, token_payload=Depends(verify_clerk_token),
+db: Session = Depends(get_db)):
+    clerk_id = token_payload["sub"]
 
     user = db.query(User).filter(
-        User.clerk_id == TEST_CLERK_ID
+        User.clerk_id == clerk_id
     ).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -116,16 +118,17 @@ async def submit_code(request: CodeSubmissionRequest, db: Session = Depends(get_
 @router.post("/bugfix")
 async def submit_bugfix(
     request: CodeSubmissionRequest,
+    token_payload=Depends(verify_clerk_token),
     db: Session = Depends(get_db)
 ):
-    TEST_CLERK_ID = "test_user_1"
+    clerk_id = token_payload["sub"]
 
     # =========================
     # FIND USER
     # =========================
 
     user = db.query(User).filter(
-        User.clerk_id == TEST_CLERK_ID
+        User.clerk_id == clerk_id
     ).first()
 
     if not user:
@@ -334,12 +337,13 @@ async def submit_bugfix(
 @router.post("/system-design")
 async def submit_system_design(
     request: SystemDesignSubmissionRequest,
+    token_payload=Depends(verify_clerk_token),
     db: Session = Depends(get_db)
 ):
-    TEST_CLERK_ID = "test_user_1"
+    clerk_id = token_payload["sub"]
 
     user = db.query(User).filter(
-        User.clerk_id == TEST_CLERK_ID
+        User.clerk_id == clerk_id
     ).first()
 
     if not user:

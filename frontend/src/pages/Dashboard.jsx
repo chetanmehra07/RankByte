@@ -33,7 +33,6 @@ const ACTIONS = [
 
 export default function Dashboard() {
   // temporary dummy auth
-  const clerkId = "test_user_1";
 
   const [stats, setStats] = useState(null);
 
@@ -42,18 +41,21 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getUserStats(clerkId), getPointsHistory(clerkId)])
-      .then(([s, h]) => {
+    const fetchDashboard = async () => {
+      try {
+        const [s, h] = await Promise.all([getUserStats(), getPointsHistory()]);
+
         setStats(s.data);
 
         setHistory(h.data);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Dashboard fetch error:", err);
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchDashboard();
   }, []);
 
   if (loading) {

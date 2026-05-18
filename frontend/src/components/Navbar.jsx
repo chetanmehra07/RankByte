@@ -1,23 +1,110 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  useClerk,
+} from "@clerk/clerk-react";
+
 import useTheme from "../context/useTheme";
+
 import PointsBadge from "./PointsBadge";
 
 const TABS = [
   { path: "/dashboard", label: "Dashboard" },
-  { path: "/challenge/bugfix", label: " Fix-Bugs" },
-  { path: "/challenge/design", label: " System Design" },
-  { path: "/daily", label: " Daily" },
-  { path: "/history", label: " History" },
-  { path: "/leaderboard", label: " Leaderboard" },
+  { path: "/challenge/bugfix", label: "Fix-Bugs" },
+  { path: "/challenge/design", label: "System Design" },
+  { path: "/daily", label: "Daily" },
+  { path: "/history", label: "History" },
+  { path: "/leaderboard", label: "Leaderboard" },
 ];
 
-export default function Navbar({ refreshPoints }) {
+const clerkAppearance = {
+  variables: {
+    colorPrimary: "#ea752d",
+    colorBackground: "#111118",
+    colorInputBackground: "#0b0b12",
+    colorInputText: "#ffffff",
+    colorText: "#ffffff",
+    colorTextSecondary: "#97979b",
+    borderRadius: "14px",
+  },
+
+  elements: {
+    card: {
+      background: "#111118",
+      border: "1px solid rgba(255,255,255,0.06)",
+      boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
+    },
+
+    headerTitle: {
+      color: "#ea752d",
+      fontSize: "38px",
+      fontWeight: "800",
+    },
+
+    headerSubtitle: {
+      color: "#97979b",
+    },
+
+    socialButtonsBlockButton: {
+      background: "#0b0b12",
+      border: "1px solid rgba(255,255,255,0.06)",
+      color: "#ffffff",
+    },
+
+    socialButtonsBlockButtonText: {
+      color: "#ffffff",
+    },
+
+    formFieldLabel: {
+      color: "#ffffff",
+    },
+
+    formFieldInput: {
+      background: "#0b0b12",
+      border: "1px solid rgba(255,255,255,0.08)",
+      color: "#ffffff",
+    },
+
+    formButtonPrimary: {
+      background: "#ea752d",
+      color: "#ffffff",
+      border: "none",
+    },
+
+    footerActionLink: {
+      color: "#ea752d",
+    },
+
+    identityPreviewText: {
+      color: "#97979b",
+    },
+
+    formResendCodeLink: {
+      color: "#ea752d",
+    },
+
+    footer: {
+      display: "none",
+    },
+
+    badge: {
+      display: "none",
+    },
+  },
+};
+
+export default function Navbar({ refreshTrigger }) {
+  const { signOut } = useClerk();
+
   const location = useLocation();
 
-  const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
 
-  // temporary dummy login
-  const isSignedIn = true;
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <nav
@@ -36,22 +123,25 @@ export default function Navbar({ refreshPoints }) {
         height: "58px",
       }}
     >
-      {/* Logo */}
+      {/* LOGO */}
+
       <Link
         to="/"
         style={{
-          fontFamily: "'syne', monospace",
+          fontFamily: "'Syne', monospace",
           fontSize: "15px",
           fontWeight: 700,
           color: "var(--text)",
           flexShrink: 0,
+          textDecoration: "none",
         }}
       >
         Rank<span style={{ color: "var(--primary)" }}>Byte</span>
       </Link>
 
-      {/* Navigation Tabs */}
-      {isSignedIn && (
+      {/* NAVIGATION */}
+
+      <SignedIn>
         <div
           style={{
             display: "flex",
@@ -69,6 +159,7 @@ export default function Navbar({ refreshPoints }) {
                 fontSize: "13px",
                 fontWeight: 700,
                 whiteSpace: "nowrap",
+                textDecoration: "none",
 
                 color:
                   location.pathname === t.path
@@ -85,9 +176,10 @@ export default function Navbar({ refreshPoints }) {
             </Link>
           ))}
         </div>
-      )}
+      </SignedIn>
 
-      {/* Right Controls */}
+      {/* RIGHT SIDE */}
+
       <div
         style={{
           display: "flex",
@@ -96,7 +188,8 @@ export default function Navbar({ refreshPoints }) {
           flexShrink: 0,
         }}
       >
-        {/* Theme Toggle */}
+        {/* THEME TOGGLE */}
+
         <button
           onClick={toggleTheme}
           style={{
@@ -113,8 +206,94 @@ export default function Navbar({ refreshPoints }) {
           {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
         </button>
 
-        {/* Points */}
-        <PointsBadge refreshTrigger={refreshPoints} />
+        {/* SIGNED IN */}
+
+        <SignedIn>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            {/* PROFILE / POINTS */}
+
+            <div
+              onClick={() => navigate("/profile")}
+              style={{
+                cursor: "pointer",
+              }}
+            >
+              <PointsBadge refreshTrigger={refreshTrigger} />
+            </div>
+
+            {/* LOGOUT */}
+
+            <button
+              onClick={() => signOut()}
+              style={{
+                background: "transparent",
+                border: "1px solid var(--border)",
+                color: "var(--muted)",
+                padding: "7px 12px",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "12px",
+                transition: "0.2s ease",
+              }}
+            >
+              Logout
+            </button>
+          </div>
+        </SignedIn>
+
+        {/* SIGNED OUT */}
+
+        <SignedOut>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            {/* SIGN IN */}
+
+            <SignInButton mode="modal" appearance={clerkAppearance}>
+              <button
+                style={{
+                  background: "transparent",
+                  color: "var(--text)",
+                  border: "1px solid var(--border)",
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                Sign In
+              </button>
+            </SignInButton>
+
+            {/* SIGN UP */}
+
+            <SignUpButton mode="modal" appearance={clerkAppearance}>
+              <button
+                style={{
+                  background: "var(--primary)",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                Sign Up
+              </button>
+            </SignUpButton>
+          </div>
+        </SignedOut>
       </div>
     </nav>
   );

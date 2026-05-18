@@ -13,6 +13,8 @@ class Settings(BaseSettings):
 
     CLERK_PUBLISHABLE_KEY: str | None = None
 
+    CLERK_JWT_ISSUER: str | None = None
+
     class Config:
         env_file = ".env"
 

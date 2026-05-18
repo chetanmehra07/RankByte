@@ -9,14 +9,12 @@ export default function HintBox({ challengeId, userCode }) {
   const [explaining, setExplaining] = useState(false);
 
   // DUMMY USER FOR NOW
-  const clerkId = "test_user_1";
 
   const fetchHint = async () => {
     setLoading(true);
 
     try {
       const res = await getHint({
-        clerk_id: clerkId,
         challenge_id: challengeId,
         hints_used: hints.length,
       });
@@ -34,7 +32,6 @@ export default function HintBox({ challengeId, userCode }) {
 
     try {
       const res = await explainSolution({
-        clerk_id: clerkId,
         challenge_id: challengeId,
         user_code: userCode || "// No code submitted yet",
       });

@@ -1,6 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+import { useAuth } from "@clerk/clerk-react";
+
+import { setAuthToken } from "./services/api";
 
 import Navbar from "./components/Navbar";
 
@@ -11,50 +15,100 @@ import SystemDesign from "./pages/SystemDesign";
 import LeaderboardPage from "./pages/Leaderboard";
 import HistoryPage from "./pages/History";
 import DailyChallenge from "./pages/DailyChallenge";
+import Profile from "./pages/Profile";
 
 export default function App() {
-  // GLOBAL refresh state
+  // =========================
+  // CLERK AUTH
+  // =========================
+
+  const { getToken } = useAuth();
+
+  // =========================
+  // SET TOKEN GLOBALLY
+  // =========================
+
+  useEffect(() => {
+    const loadToken = async () => {
+      try {
+        setAuthToken(async () => {
+          return await getToken({
+            template: "backend",
+          });
+        });
+      } catch (error) {
+        console.error("Failed to set auth token:", error);
+      }
+    };
+
+    loadToken();
+  }, [getToken]);
+
+  // =========================
+  // GLOBAL REFRESH STATE
+  // =========================
+
   const [refreshPoints, setRefreshPoints] = useState(0);
 
   return (
-    <BrowserRouter>
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "var(--bg)",
-          color: "var(--text)",
-          transition: "all 0.25s ease",
-        }}
-      >
-        {/* Pass refresh trigger to navbar */}
-        <Navbar refreshPoints={refreshPoints} />
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "var(--bg)",
+        color: "var(--text)",
+        transition: "all 0.25s ease",
+      }}
+    >
+      {/* NAVBAR */}
 
-        <Routes>
-          <Route path="/" element={<Home />} />
+      <Navbar refreshTrigger={refreshPoints} />
 
-          <Route path="/dashboard" element={<Dashboard />} />
+      <Routes>
+        {/* HOME */}
 
-          {/* Pass setter to BugFixer */}
-          <Route
-            path="/challenge/bugfix"
-            element={<BugFixer setRefreshPoints={setRefreshPoints} />}
-          />
+        <Route path="/" element={<Home />} />
 
-          {/* Pass setter to SystemDesign */}
-          <Route
-            path="/challenge/design"
-            element={<SystemDesign setRefreshPoints={setRefreshPoints} />}
-          />
+        {/* DASHBOARD */}
 
-          <Route path="/daily" element={<DailyChallenge />} />
+        <Route path="/dashboard" element={<Dashboard />} />
 
-          <Route path="/history" element={<HistoryPage />} />
+        {/* BUG FIX */}
 
-          <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route
+          path="/challenge/bugfix"
+          element={<BugFixer setRefreshPoints={setRefreshPoints} />}
+        />
 
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+        {/* SYSTEM DESIGN */}
+
+        <Route
+          path="/challenge/design"
+          element={<SystemDesign setRefreshPoints={setRefreshPoints} />}
+        />
+
+        {/* DAILY */}
+
+        <Route
+          path="/daily"
+          element={<DailyChallenge setRefreshPoints={setRefreshPoints} />}
+        />
+
+        {/* HISTORY */}
+
+        <Route path="/history" element={<HistoryPage />} />
+
+        {/* LEADERBOARD */}
+
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
+
+        {/* PROFILE */}
+
+        <Route path="/profile" element={<Profile />} />
+
+        {/* FALLBACK */}
+
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </div>
   );
 }

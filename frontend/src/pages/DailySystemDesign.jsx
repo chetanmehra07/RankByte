@@ -4,7 +4,11 @@ import TimerDisplay from "../components/TimerDisplay";
 
 import { submitSystemDesign } from "../services/api";
 
-export default function DailySystemDesign({ challenge, onBack }) {
+export default function DailySystemDesign({
+  challenge,
+  onBack,
+  setRefreshPoints,
+}) {
   const [answer, setAnswer] = useState("");
 
   const [result, setResult] = useState(null);
@@ -14,8 +18,6 @@ export default function DailySystemDesign({ challenge, onBack }) {
   const [timerStopped, setTimerStopped] = useState(false);
 
   const [submitted, setSubmitted] = useState(false);
-
-  const clerkId = "test_user_1";
 
   const [startTime] = useState(() => Date.now());
 
@@ -30,8 +32,6 @@ export default function DailySystemDesign({ challenge, onBack }) {
       setSubmitting(true);
 
       const res = await submitSystemDesign({
-        clerk_id: clerkId,
-
         challenge_id: challenge.challenge_id,
 
         daily_challenge_id: challenge.daily_challenge_id,
@@ -46,6 +46,7 @@ export default function DailySystemDesign({ challenge, onBack }) {
       setSubmitted(true);
 
       setTimerStopped(true);
+      setRefreshPoints((prev) => prev + 1);
     } catch (err) {
       console.error(err.response?.data || err);
     } finally {

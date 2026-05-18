@@ -20,6 +20,8 @@ from services.points_service import (
     get_user_difficulty,
 )
 
+from services.clerk_auth import verify_clerk_token
+
 from pydantic import BaseModel
 from datetime import date
 import random
@@ -37,7 +39,6 @@ DAILY_BONUS = 50
 # ======================================================
 
 class DailyCompleteRequest(BaseModel):
-    clerk_id: str
     challenge_id: int
     answer: str
 
@@ -73,15 +74,15 @@ def create_daily_challenge(
 
         ai_content = generate_bug_fix_challenge(
             selected_language,
-            difficulty_info["difficulty"],
+            difficulty_info["level"],
             user.total_points
         )
 
     else:
 
         ai_content = generate_system_design_challenge(
-            selected_language,
-            difficulty_info["difficulty"]
+            difficulty_info["level"],
+            user.total_points
         )
 
     # ======================================================
@@ -95,7 +96,7 @@ def create_daily_challenge(
         title=f"[DAILY] {ai_content.get('title', 'Daily Challenge')}",
         description=ai_content.get(
             "description",
-            ""
+            ai_content.get("scenario", "")
         ),
         ai_generated_content=ai_content,
         points_reward=DAILY_BONUS
@@ -128,9 +129,11 @@ def create_daily_challenge(
 
 @router.get("/today")
 async def get_daily_challenges(
-    clerk_id: str,
+    token_payload=Depends(verify_clerk_token),
     db: Session = Depends(get_db)
 ):
+
+    clerk_id = token_payload["sub"]
 
     # ======================================================
     # Find User
@@ -142,11 +145,21 @@ async def get_daily_challenges(
         .first()
     )
 
+    # ======================================================
+    # Auto Create User
+    # ======================================================
+
     if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found"
+
+        user = User(
+            clerk_id=clerk_id,
+            username="New User",
+            email=f"{clerk_id}@temp.com"
         )
+
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
     today = date.today()
 
@@ -309,8 +322,11 @@ async def get_daily_challenges(
 @router.post("/complete")
 async def complete_daily(
     data: DailyCompleteRequest,
+    token_payload=Depends(verify_clerk_token),
     db: Session = Depends(get_db)
 ):
+
+    clerk_id = token_payload["sub"]
 
     # ======================================================
     # Find User
@@ -319,7 +335,7 @@ async def complete_daily(
     user = (
         db.query(User)
         .filter(
-            User.clerk_id == data.clerk_id
+            User.clerk_id == clerk_id
         )
         .first()
     )

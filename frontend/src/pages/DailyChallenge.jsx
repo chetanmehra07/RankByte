@@ -11,8 +11,6 @@ const card = {
 };
 
 export default function DailyChallenge() {
-  const clerkId = "test_user_1";
-
   const [dailyChallenges, setDailyChallenges] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -28,7 +26,7 @@ export default function DailyChallenge() {
   useEffect(() => {
     const fetchChallenges = async () => {
       try {
-        const res = await getDailyChallenge(clerkId);
+        const res = await getDailyChallenge();
 
         setDailyChallenges(res.data.daily_challenges || []);
       } catch (err) {

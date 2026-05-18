@@ -1,9 +1,7 @@
 /* RESET */
 * {
   margin: 0;
-
   padding: 0;
-
   box-sizing: border-box;
 }
 
@@ -22,6 +20,7 @@
   --border: rgba(0, 0, 0, 0.08);
 
   --primary: #ea752d;
+
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
@@ -118,4 +117,166 @@ textarea {
   transform: translateY(-4px);
 
   background: var(--card-hover);
+}
+
+/* ========================= */
+/* CLERK CUSTOMIZATION */
+/* ========================= */
+
+/* REMOVE DEV BADGES */
+.cl-footer,
+.cl-badge,
+.cl-internal-1dauvpw,
+.cl-internal-1hp5nqm,
+[data-localization-key="badge__developmentMode"],
+[data-localization-key="badge__secureByClerk"] {
+  display: none !important;
+}
+
+/* REMOVE FLICKER */
+.cl-card,
+.cl-profilePage {
+  transition: none !important;
+}
+
+/* GLOBAL CLERK CARD */
+.cl-card {
+  background: var(--card) !important;
+
+  border: 1px solid var(--border) !important;
+
+  box-shadow: none !important;
+
+  border-radius: 24px !important;
+}
+
+/* LEFT SIDEBAR */
+.cl-navbar {
+  background: linear-gradient(
+    180deg,
+    var(--card),
+    var(--card-hover)
+  ) !important;
+
+  border-right: 1px solid var(--border) !important;
+}
+
+/* SIDEBAR BUTTONS */
+.cl-navbarButton {
+  color: var(--text) !important;
+
+  border-radius: 12px !important;
+
+  transition: 0.2s ease !important;
+}
+
+.cl-navbarButton:hover {
+  background: var(--card-hover) !important;
+}
+
+/* ACTIVE SIDEBAR BUTTON */
+.cl-navbarButtonActive {
+  background: var(--primary) !important;
+
+  color: white !important;
+}
+
+/* HEADINGS */
+.cl-headerTitle {
+  color: var(--text) !important;
+
+  font-size: 28px !important;
+
+  font-weight: 700 !important;
+}
+
+.cl-headerSubtitle {
+  color: var(--muted) !important;
+}
+
+/* SECTION CARDS */
+.cl-profileSectionContent {
+  background: var(--bg) !important;
+
+  border: 1px solid var(--border) !important;
+
+  border-radius: 18px !important;
+}
+
+/* INPUT LABELS */
+.cl-formFieldLabel {
+  color: var(--text) !important;
+
+  font-weight: 600 !important;
+}
+
+/* INPUTS */
+.cl-formFieldInput {
+  background: var(--card) !important;
+
+  border: 1px solid var(--border) !important;
+
+  color: var(--text) !important;
+
+  border-radius: 12px !important;
+}
+
+/* BUTTONS */
+.cl-formButtonPrimary {
+  background: var(--primary) !important;
+
+  color: white !important;
+
+  border-radius: 12px !important;
+
+  box-shadow: none !important;
+}
+
+/* USER TEXT */
+.cl-userPreviewMainIdentifier {
+  color: var(--text) !important;
+}
+
+.cl-userPreviewSecondaryIdentifier {
+  color: var(--text) !important;
+}
+.cl-headerTitle,
+.cl-profilePageTitle {
+  color: var(--primary) !important;
+}
+.cl-avatarImage {
+  background: var(--primary) !important;
+}
+
+.cl-userPreviewAvatarBox {
+  background: var(--primary) !important;
+}
+
+.cl-userButtonAvatarBox {
+  background: var(--primary) !important;
+}
+
+.cl-avatarBox {
+  background: var(--primary) !important;
+}
+
+/* force fallback avatar color */
+.cl-internal-b3fm6y,
+.cl-internal-1ho4xv {
+  background: var(--primary) !important;
+}
+/* PROFILE PAGE CONTAINER */
+.cl-rootBox {
+  width: 100% !important;
+
+  display: flex !important;
+
+  justify-content: center !important;
+}
+
+/* MAIN PROFILE WIDTH */
+.cl-userProfile-root {
+  width: 100% !important;
+
+  max-width: 1150px !important;
 }

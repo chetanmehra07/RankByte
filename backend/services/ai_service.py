@@ -2,6 +2,7 @@ from groq import Groq
 from config import settings
 import json
 import re
+import time
 
 client = Groq(api_key=settings.GROQ_API_KEY)
 MODEL = "llama-3.1-8b-instant"
@@ -116,69 +117,67 @@ Bug count rules:
 
 IMPORTANT:
 - Return ONLY valid JSON
-- Do NOT use markdown
-- Do NOT wrap code in triple backticks
-- Store code as arrays of lines
-- Every code line must be a separate string
-IMPORTANT:
-- Every described bug MUST actually exist in the faulty code
-- Do not invent fake bugs
-- The faulty code must fail logically, syntactically, or functionally
-- The correct solution must genuinely fix the listed bugs
-VERY IMPORTANT:
-- Every hint must correspond to a REAL bug
-- Do not invent fake bugs
-- Do not mention correct code as buggy
+- No markdown
+- No triple backticks
+- Keep JSON compact
+- Ensure JSON is COMPLETE and CLOSED properly
 
 Return ONLY this JSON format:
 
 {{
     "title": "bug fix challenge title",
-
     "description": "what the code is supposed to do",
-
     "faulty_code_lines": [
         "line 1",
-        "line 2",
-        "line 3"
+        "line 2"
     ],
-
     "bugs_present": [
-        "description of bug 1",
-        "description of bug 2"
+        "bug 1"
     ],
-
     "correct_solution_lines": [
-        "line 1",
-        "line 2",
-        "line 3"
+        "line 1"
     ],
-
-    "difficulty": "Easy or Medium or Hard",
-
+    "difficulty": "Easy",
     "hints": [
-        "hint about bug area 1",
-        "hint about bug area 2"
+        "hint 1"
     ]
 }}
 """
 
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],response_format={"type": "json_object"},
-        max_tokens=1200,
-        temperature=0.7
-    )
+    # ======================================================
+    # RETRY LOOP
+    # ======================================================
 
-    return clean_json_response(
-        response.choices[0].message.content
-    )
+    for attempt in range(3):
 
+        try:
+
+            response = client.chat.completions.create(
+                model=MODEL,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                response_format={"type": "json_object"},
+                max_tokens=1500,
+                temperature=0.7
+            )
+
+            return clean_json_response(
+                response.choices[0].message.content
+            )
+
+        except Exception as e:
+
+            print(f"Retry {attempt + 1} failed:", e)
+
+            time.sleep(1)
+
+    raise ValueError(
+        "Failed to generate valid bug-fix challenge JSON"
+    )
 
 def generate_system_design_challenge(user_level: str, user_points: int) -> dict:
     prompt = f"""

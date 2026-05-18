@@ -1,19 +1,26 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
+
 from models.user import User
 from models.challenge import Challenge
+
 from services.ai_service import (
     generate_coding_task,
     generate_bug_fix_challenge,
     generate_system_design_challenge
 )
+
 from services.points_service import (
     get_user_difficulty,
     get_language_difficulty
 )
+
+from services.clerk_auth import verify_clerk_token
+
 from pydantic import BaseModel
 from typing import Optional
+
 
 router = APIRouter(
     prefix="/challenges",
@@ -29,23 +36,38 @@ class GenerateChallengeRequest(BaseModel):
 @router.post("/generate")
 async def generate_challenge(
     request: GenerateChallengeRequest,
+    token_payload=Depends(verify_clerk_token),
     db: Session = Depends(get_db)
 ):
-    TEST_CLERK_ID = "test_user_1"
 
+    # =========================
+    # REAL CLERK USER ID
+    # =========================
+
+    clerk_id = token_payload["sub"]
+    print("REAL CLERK ID:", clerk_id)
+    print("TOKEN PAYLOAD:", token_payload)
     # =========================
     # FIND USER
     # =========================
 
     user = db.query(User).filter(
-        User.clerk_id == TEST_CLERK_ID
+        User.clerk_id == clerk_id
     ).first()
 
     if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found"
+
+        user = User(
+            clerk_id=clerk_id,
+            username="New User",
+            email=f"{clerk_id}@temp.com"
         )
+
+    db.add(user)
+
+    db.commit()
+
+    db.refresh(user)
 
     # =========================
     # USER DIFFICULTY
@@ -276,6 +298,7 @@ async def get_challenge(
     challenge_id: int,
     db: Session = Depends(get_db)
 ):
+
     challenge = db.query(Challenge).filter(
         Challenge.id == challenge_id
     ).first()
