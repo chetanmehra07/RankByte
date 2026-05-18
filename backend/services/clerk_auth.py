@@ -16,7 +16,6 @@ from models.user import User
 
 CLERK_ISSUER = settings.CLERK_JWT_ISSUER
 
-print("CLERK ISSUER:", CLERK_ISSUER)
 
 JWKS_URL = f"{CLERK_ISSUER}/.well-known/jwks.json"
 

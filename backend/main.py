@@ -6,7 +6,6 @@ import os
 
 load_dotenv()
 
-print("CLERK ISSUER:", os.getenv("CLERK_JWT_ISSUER"))
 
 from database import create_tables
 from routes.challenges import router as challenge_router

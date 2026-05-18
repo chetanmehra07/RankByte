@@ -19,3 +19,4 @@ class User(Base):
     submissions = relationship("Submission", back_populates="user")
     point_transactions = relationship("PointTransaction", back_populates="user")
     language_mastery = relationship("LanguageMastery", back_populates="user")
+    
