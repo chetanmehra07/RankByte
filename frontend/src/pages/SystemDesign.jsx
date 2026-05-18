@@ -21,6 +21,9 @@ export default function SystemDesign({ setRefreshPoints }) {
   const [submitted, setSubmitted] = useState(false);
 
   const [startTime, setStartTime] = useState(() => Date.now());
+  const [, setRemainingQuestions] = useState(10);
+
+  const [limitReached, setLimitReached] = useState(false);
 
   const generate = async () => {
     try {
@@ -42,8 +45,22 @@ export default function SystemDesign({ setRefreshPoints }) {
       });
 
       setChallenge(res.data);
+      setRemainingQuestions(res.data.remaining_questions ?? 0);
     } catch (err) {
       console.error(err);
+
+      if (
+        err?.response?.status === 403 &&
+        err?.response?.data?.detail?.limit_reached
+      ) {
+        setLimitReached(true);
+
+        setRemainingQuestions(0);
+
+        setLoading(false);
+
+        return;
+      }
     } finally {
       setLoading(false);
     }
@@ -225,11 +242,11 @@ export default function SystemDesign({ setRefreshPoints }) {
             {/* BUTTON */}
             <button
               onClick={generate}
-              disabled={loading}
+              disabled={loading || limitReached}
               style={{
                 padding: "18px 36px",
 
-                background: "var(--primary)",
+                background: limitReached ? "#374151" : "var(--primary)",
 
                 color: "#fff",
 
@@ -241,12 +258,18 @@ export default function SystemDesign({ setRefreshPoints }) {
 
                 fontSize: "17px",
 
-                cursor: "pointer",
-
                 transition: ".25s",
+
+                opacity: limitReached ? 0.6 : 1,
+
+                cursor: limitReached ? "not-allowed" : "pointer",
               }}
             >
-              {loading ? "Generating..." : "Generate Challenge"}
+              {limitReached
+                ? "Daily AI Limit Reached"
+                : loading
+                  ? "Generating..."
+                  : "Generate Challenge"}
             </button>
           </div>
 
@@ -643,6 +666,101 @@ export default function SystemDesign({ setRefreshPoints }) {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* ========================= */}
+      {/* LIMIT POPUP */}
+      {/* ========================= */}
+
+      {limitReached && (
+        <div
+          style={{
+            position: "fixed",
+
+            top: 0,
+
+            left: 0,
+
+            width: "100vw",
+
+            height: "100vh",
+
+            background: "rgba(0,0,0,0.7)",
+
+            backdropFilter: "blur(8px)",
+
+            display: "flex",
+
+            alignItems: "center",
+
+            justifyContent: "center",
+
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              width: "90%",
+
+              maxWidth: "500px",
+
+              background: "var(--card)",
+
+              border: "1px solid var(--border)",
+
+              borderRadius: "28px",
+
+              padding: "40px",
+
+              textAlign: "center",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "30px",
+
+                marginBottom: "15px",
+              }}
+            >
+              Daily AI Limit Reached
+            </h2>
+
+            <p
+              style={{
+                color: "var(--muted)",
+
+                lineHeight: 1.8,
+
+                fontSize: "15px",
+
+                marginBottom: "30px",
+              }}
+            >
+              You've used all 10 free AI-generated challenges for today. Come
+              back tomorrow for more system design practice.
+            </p>
+
+            <button
+              onClick={() => setLimitReached(false)}
+              style={{
+                padding: "14px 28px",
+
+                background: "var(--primary)",
+
+                border: "none",
+
+                borderRadius: "14px",
+
+                color: "#fff",
+
+                fontWeight: 700,
+
+                cursor: "pointer",
+              }}
+            >
+              Got It
+            </button>
           </div>
         </div>
       )}

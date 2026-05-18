@@ -30,7 +30,7 @@ def get_public_key(token):
 
     unverified_header = jwt.get_unverified_header(token)
 
-    print("TOKEN HEADER:", unverified_header)
+   
 
     kid = unverified_header.get("kid")
 
@@ -61,7 +61,7 @@ async def verify_clerk_token(
 
     if not authorization:
 
-        print("NO AUTHORIZATION HEADER")
+        
 
         raise HTTPException(
             status_code=401,
@@ -70,11 +70,11 @@ async def verify_clerk_token(
 
     try:
 
-        print("AUTH HEADER:", authorization)
+        
 
         token = authorization.split(" ")[1]
 
-        print("TOKEN:", token)
+        
 
         public_key = get_public_key(token)
 
@@ -90,7 +90,7 @@ async def verify_clerk_token(
             options={"verify_aud": False}
         )
 
-        print("PAYLOAD:", payload)
+        
 
         # ======================================================
         # USER DATA
@@ -115,7 +115,7 @@ async def verify_clerk_token(
         if not username:
             username = "User"
 
-        print("USERNAME:", username)
+       
 
         # ======================================================
         # FIND USER
@@ -133,7 +133,7 @@ async def verify_clerk_token(
 
         if not user:
 
-            print("CREATING NEW USER")
+            
 
             user = User(
                 clerk_id=clerk_id,
@@ -165,7 +165,7 @@ async def verify_clerk_token(
 
             if updated:
 
-                print("UPDATING USER")
+                
 
                 db.commit()
 

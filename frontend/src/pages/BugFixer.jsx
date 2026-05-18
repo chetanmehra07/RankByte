@@ -8,8 +8,6 @@ import { generateChallenge, submitBugFix } from "../services/api";
 
 import heroImage from "../assets/bugHero5.png";
 
-const TEST_CLERK_ID = "test_user_1";
-
 const LANGUAGES = ["Python", "JavaScript", "Java", "C++", "TypeScript"];
 
 const card = {
@@ -38,6 +36,9 @@ export default function BugFixer({ setRefreshPoints }) {
   const [submitted, setSubmitted] = useState(false);
 
   const [timerStopped, setTimerStopped] = useState(false);
+  const [, setRemainingQuestions] = useState(10);
+
+  const [limitReached, setLimitReached] = useState(false);
 
   // =========================
   // GENERATE CHALLENGE
@@ -56,18 +57,38 @@ export default function BugFixer({ setRefreshPoints }) {
 
     try {
       const res = await generateChallenge({
-        clerk_id: TEST_CLERK_ID,
-
         language: lang,
 
         challenge_type: "BUG_FIX",
       });
 
       setChallenge(res.data);
+      setRemainingQuestions(res.data.remaining_questions ?? 0);
 
-      setCode(res.data.content?.faulty_code_lines?.join("\n") || "");
+      setCode(
+        res.data.content?.faulty_code_lines?.join("\n") ||
+          res.data.faulty_code_lines?.join("\n") ||
+          "",
+      );
     } catch (err) {
       console.error(err);
+
+      // =========================
+      // DAILY LIMIT REACHED
+      // =========================
+
+      if (
+        err?.response?.status === 403 &&
+        err?.response?.data?.detail?.limit_reached
+      ) {
+        setLimitReached(true);
+
+        setRemainingQuestions(0);
+
+        setLoading(false);
+
+        return;
+      }
 
       alert("Failed to generate challenge.");
     }
@@ -88,8 +109,6 @@ export default function BugFixer({ setRefreshPoints }) {
       const timeTaken = Math.floor((Date.now() - startTime) / 1000);
 
       const res = await submitBugFix({
-        clerk_id: TEST_CLERK_ID,
-
         challenge_id: challenge.challenge_id,
 
         submitted_code: code,
@@ -317,11 +336,11 @@ export default function BugFixer({ setRefreshPoints }) {
             {/* BUTTON */}
             <button
               onClick={generate}
-              disabled={loading}
+              disabled={loading || limitReached}
               style={{
                 padding: "18px 36px",
 
-                background: "var(--primary)",
+                background: limitReached ? "#374151" : "var(--primary)",
 
                 color: "#fff",
 
@@ -333,14 +352,18 @@ export default function BugFixer({ setRefreshPoints }) {
 
                 fontSize: "17px",
 
-                cursor: "pointer",
-
                 transition: ".25s",
+
+                opacity: limitReached ? 0.6 : 1,
+
+                cursor: limitReached ? "not-allowed" : "pointer",
               }}
             >
-              {loading
-                ? "AI is generating buggy code..."
-                : "Generate Buggy Code"}
+              {limitReached
+                ? "Daily AI Limit Reached"
+                : loading
+                  ? "AI is generating buggy code..."
+                  : "Generate Buggy Code"}
             </button>
           </div>
 
@@ -799,6 +822,101 @@ export default function BugFixer({ setRefreshPoints }) {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+      {/* ========================= */}
+      {/* LIMIT POPUP */}
+      {/* ========================= */}
+
+      {limitReached && (
+        <div
+          style={{
+            position: "fixed",
+
+            top: 0,
+
+            left: 0,
+
+            width: "100vw",
+
+            height: "100vh",
+
+            background: "rgba(0,0,0,0.7)",
+
+            backdropFilter: "blur(8px)",
+
+            display: "flex",
+
+            alignItems: "center",
+
+            justifyContent: "center",
+
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              width: "90%",
+
+              maxWidth: "500px",
+
+              background: "var(--card)",
+
+              border: "1px solid var(--border)",
+
+              borderRadius: "28px",
+
+              padding: "40px",
+
+              textAlign: "center",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "30px",
+
+                marginBottom: "15px",
+              }}
+            >
+              Daily AI Limit Reached
+            </h2>
+
+            <p
+              style={{
+                color: "var(--muted)",
+
+                lineHeight: 1.8,
+
+                fontSize: "15px",
+
+                marginBottom: "30px",
+              }}
+            >
+              You've used all 10 free AI-generated challenges for today. Come
+              back tomorrow for more debugging practice.
+            </p>
+
+            <button
+              onClick={() => setLimitReached(false)}
+              style={{
+                padding: "14px 28px",
+
+                background: "var(--primary)",
+
+                border: "none",
+
+                borderRadius: "14px",
+
+                color: "#fff",
+
+                fontWeight: 700,
+
+                cursor: "pointer",
+              }}
+            >
+              Got It
+            </button>
           </div>
         </div>
       )}

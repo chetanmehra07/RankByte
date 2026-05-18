@@ -162,7 +162,7 @@ Return ONLY this JSON format:
                 ],
                 response_format={"type": "json_object"},
                 max_tokens=1500,
-                temperature=0.7
+                temperature=0.3
             )
 
             return clean_json_response(

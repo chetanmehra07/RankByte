@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from database import get_db
 
 from models.user import User
@@ -21,6 +22,10 @@ from services.clerk_auth import verify_clerk_token
 from pydantic import BaseModel
 from typing import Optional
 
+from services.question_limit_service import (
+    check_daily_question_limit,
+    increment_daily_question_count
+)
 
 router = APIRouter(
     prefix="/challenges",
@@ -28,10 +33,18 @@ router = APIRouter(
 )
 
 
+# ======================================================
+# REQUEST MODEL
+# ======================================================
+
 class GenerateChallengeRequest(BaseModel):
     language: Optional[str] = None
     challenge_type: str  # CODING_TASK | BUG_FIX | SYSTEM_DESIGN
 
+
+# ======================================================
+# GENERATE CHALLENGE
+# ======================================================
 
 @router.post("/generate")
 async def generate_challenge(
@@ -40,38 +53,69 @@ async def generate_challenge(
     db: Session = Depends(get_db)
 ):
 
-    # =========================
+    # ======================================================
     # REAL CLERK USER ID
-    # =========================
+    # ======================================================
 
     clerk_id = token_payload["sub"]
-    print("REAL CLERK ID:", clerk_id)
-    print("TOKEN PAYLOAD:", token_payload)
-    # =========================
+
+    # ======================================================
     # FIND USER
-    # =========================
+    # ======================================================
 
     user = db.query(User).filter(
         User.clerk_id == clerk_id
     ).first()
 
+    # ======================================================
+    # CREATE USER IF NOT EXISTS
+    # ======================================================
+
     if not user:
 
         user = User(
             clerk_id=clerk_id,
-            username="New User",
-            email=f"{clerk_id}@temp.com"
+            username=(
+                token_payload.get("username")
+                or token_payload.get("name")
+                or "New User"
+            ),
+            email=(
+                token_payload.get("email")
+                or f"{clerk_id}@temp.com"
+            )
         )
 
-    db.add(user)
+        db.add(user)
 
-    db.commit()
+        db.commit()
 
-    db.refresh(user)
+        db.refresh(user)
 
-    # =========================
+    # ======================================================
+    # DAILY AI LIMIT CHECK
+    # ======================================================
+
+    limit_info = check_daily_question_limit(
+        db,
+        user.id
+    )
+
+    if not limit_info["allowed"]:
+
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "message":
+                "You have reached your daily free AI challenge limit.",
+                "limit_reached": True,
+                "remaining": 0
+            }
+        )
+
+    # ======================================================
     # USER DIFFICULTY
-    # =========================
+    # ======================================================
 
     if request.language:
 
@@ -95,9 +139,9 @@ async def generate_challenge(
 
     try:
 
-        # =========================
+        # ======================================================
         # CODING TASK
-        # =========================
+        # ======================================================
 
         if request.challenge_type == "CODING_TASK":
 
@@ -119,9 +163,9 @@ async def generate_challenge(
                 ""
             )
 
-        # =========================
+        # ======================================================
         # BUG FIX
-        # =========================
+        # ======================================================
 
         elif request.challenge_type == "BUG_FIX":
 
@@ -143,9 +187,9 @@ async def generate_challenge(
                 ""
             )
 
-        # =========================
+        # ======================================================
         # SYSTEM DESIGN
-        # =========================
+        # ======================================================
 
         elif request.challenge_type == "SYSTEM_DESIGN":
 
@@ -173,17 +217,17 @@ async def generate_challenge(
                 detail="Invalid challenge type"
             )
 
-        # =========================
-        # POINT CALCULATION
-        # =========================
+        # ======================================================
+        # POINTS CALCULATION
+        # ======================================================
 
         points_reward = int(
             base_points * points_multiplier
         )
 
-        # =========================
+        # ======================================================
         # SAVE CHALLENGE
-        # =========================
+        # ======================================================
 
         challenge = Challenge(
             type=request.challenge_type,
@@ -205,15 +249,30 @@ async def generate_challenge(
 
         db.refresh(challenge)
 
-        # =========================
+        # ======================================================
+        # INCREMENT DAILY QUESTION COUNT
+        # ======================================================
+
+        increment_daily_question_count(
+            db,
+            user.id
+        )
+
+        # ======================================================
+        # REFRESH USER AFTER INCREMENT
+        # ======================================================
+
+        db.refresh(user)
+
+        # ======================================================
         # SAFE CONTENT FOR FRONTEND
-        # =========================
+        # ======================================================
 
         safe_content = {}
 
-        # -------------------------
+        # ------------------------------------------------------
         # BUG FIX
-        # -------------------------
+        # ------------------------------------------------------
 
         if challenge.type == "BUG_FIX":
 
@@ -229,9 +288,9 @@ async def generate_challenge(
                 )
             }
 
-        # -------------------------
+        # ------------------------------------------------------
         # CODING TASK
-        # -------------------------
+        # ------------------------------------------------------
 
         elif challenge.type == "CODING_TASK":
 
@@ -250,9 +309,9 @@ async def generate_challenge(
                 )
             }
 
-        # -------------------------
+        # ------------------------------------------------------
         # SYSTEM DESIGN
-        # -------------------------
+        # ------------------------------------------------------
 
         elif challenge.type == "SYSTEM_DESIGN":
 
@@ -268,9 +327,9 @@ async def generate_challenge(
                 )
             }
 
-        # =========================
+        # ======================================================
         # RESPONSE
-        # =========================
+        # ======================================================
 
         return {
             "challenge_id": challenge.id,
@@ -282,16 +341,26 @@ async def generate_challenge(
             "content": safe_content,
             "points_reward": challenge.points_reward,
             "user_level": user_level,
-            "difficulty_info": difficulty_info
+            "difficulty_info": difficulty_info,
+            "remaining_questions": max(
+                0,
+                10 - user.daily_question_count
+            ),
         }
 
     except Exception as e:
+
+        print("CHALLENGE GENERATION ERROR:", str(e))
 
         raise HTTPException(
             status_code=500,
             detail=f"AI generation failed: {str(e)}"
         )
 
+
+# ======================================================
+# GET CHALLENGE
+# ======================================================
 
 @router.get("/{challenge_id}")
 async def get_challenge(
@@ -310,9 +379,9 @@ async def get_challenge(
             detail="Challenge not found"
         )
 
-    # =========================
+    # ======================================================
     # SAFE CONTENT
-    # =========================
+    # ======================================================
 
     safe_content = {}
 
