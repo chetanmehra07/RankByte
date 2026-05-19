@@ -16,6 +16,7 @@ import LeaderboardPage from "./pages/Leaderboard";
 import HistoryPage from "./pages/History";
 import DailyChallenge from "./pages/DailyChallenge";
 import Profile from "./pages/Profile";
+import { SignIn, SignUp } from "@clerk/clerk-react";
 
 export default function App() {
   // =========================
@@ -104,6 +105,19 @@ export default function App() {
         {/* PROFILE */}
 
         <Route path="/profile" element={<Profile />} />
+        {/* SIGN IN */}
+
+        <Route
+          path="/sign-in/*"
+          element={<SignIn routing="path" path="/sign-in" />}
+        />
+
+        {/* SIGN UP */}
+
+        <Route
+          path="/sign-up/*"
+          element={<SignUp routing="path" path="/sign-up" />}
+        />
 
         {/* FALLBACK */}
 

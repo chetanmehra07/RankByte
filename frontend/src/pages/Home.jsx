@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import { SignInButton } from "@clerk/clerk-react";
 
 const FEATURES = [
   {
@@ -64,7 +66,83 @@ const LEVELS = [
   },
 ];
 
+const clerkAppearance = {
+  variables: {
+    colorPrimary: "#ea752d",
+    colorBackground: "#111118",
+    colorInputBackground: "#0b0b12",
+    colorInputText: "#ffffff",
+    colorText: "#ffffff",
+    colorTextSecondary: "#97979b",
+    borderRadius: "14px",
+  },
+
+  elements: {
+    card: {
+      background: "#111118",
+      border: "1px solid rgba(255,255,255,0.06)",
+      boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
+    },
+
+    headerTitle: {
+      color: "#ea752d",
+      fontSize: "38px",
+      fontWeight: "800",
+    },
+
+    headerSubtitle: {
+      color: "#97979b",
+    },
+
+    socialButtonsBlockButton: {
+      background: "#0b0b12",
+      border: "1px solid rgba(255,255,255,0.06)",
+      color: "#ffffff",
+    },
+
+    socialButtonsBlockButtonText: {
+      color: "#ffffff",
+    },
+
+    formFieldLabel: {
+      color: "#ffffff",
+    },
+
+    formFieldInput: {
+      background: "#0b0b12",
+      border: "1px solid rgba(255,255,255,0.08)",
+      color: "#ffffff",
+    },
+
+    formButtonPrimary: {
+      background: "#ea752d",
+      color: "#ffffff",
+      border: "none",
+    },
+
+    footerActionLink: {
+      color: "#ea752d",
+    },
+
+    identityPreviewText: {
+      color: "#97979b",
+    },
+
+    formResendCodeLink: {
+      color: "#ea752d",
+    },
+
+    footer: {
+      display: "none",
+    },
+
+    badge: {
+      display: "none",
+    },
+  },
+};
 export default function Home() {
+  const { isSignedIn } = useUser();
   return (
     <div
       style={{
@@ -179,28 +257,43 @@ export default function Home() {
               flexWrap: "wrap",
             }}
           >
-            <Link
-              to="/dashboard"
-              style={{
-                background: "var(--primary)",
-
-                color: "#fff",
-
-                padding: "16px 36px",
-
-                borderRadius: "16px",
-
-                fontWeight: 700,
-
-                fontSize: "15px",
-
-                boxShadow: "0 8px 30px rgba(64, 62, 83, 0.25)",
-
-                transition: ".25s ease",
-              }}
-            >
-              Launch Platform →
-            </Link>
+            {isSignedIn ? (
+              <Link
+                to="/dashboard"
+                style={{
+                  background: "var(--primary)",
+                  color: "#fff",
+                  padding: "16px 36px",
+                  borderRadius: "16px",
+                  fontWeight: 700,
+                  fontSize: "15px",
+                  boxShadow: "0 8px 30px rgba(64, 62, 83, 0.25)",
+                  transition: ".25s ease",
+                  textDecoration: "none",
+                }}
+              >
+                Launch Platform →
+              </Link>
+            ) : (
+              <SignInButton mode="modal" appearance={clerkAppearance}>
+                <button
+                  style={{
+                    background: "var(--primary)",
+                    color: "#fff",
+                    padding: "16px 36px",
+                    borderRadius: "16px",
+                    fontWeight: 700,
+                    fontSize: "15px",
+                    border: "none",
+                    cursor: "pointer",
+                    boxShadow: "0 8px 30px rgba(64, 62, 83, 0.25)",
+                    transition: ".25s ease",
+                  }}
+                >
+                  Launch Platform →
+                </button>
+              </SignInButton>
+            )}
 
             <Link
               to="/leaderboard"
