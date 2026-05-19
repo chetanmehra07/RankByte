@@ -13,12 +13,12 @@ const LEVEL_COLORS = {
 };
 
 export default function PointsBadge({ refreshTrigger }) {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
 
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!isLoaded || !user) return;
 
     let mounted = true;
 
@@ -41,13 +41,16 @@ export default function PointsBadge({ refreshTrigger }) {
     return () => {
       mounted = false;
     };
-  }, [refreshTrigger, user]);
+  }, [refreshTrigger, user, isLoaded]);
 
-  if (!user) return null;
+  // Don't render anything until Clerk fully loads
+  if (!isLoaded || !user) return null;
 
   const level = stats?.level || stats?.difficulty_info?.level || "Beginner";
 
   const color = LEVEL_COLORS[level] || "var(--primary)";
+
+  const totalPoints = stats?.total_points ?? null;
 
   return (
     <div
@@ -124,16 +127,19 @@ export default function PointsBadge({ refreshTrigger }) {
             user.primaryEmailAddress?.emailAddress}
         </div>
 
-        <div
-          style={{
-            fontSize: "11px",
-            color,
-            fontWeight: 600,
-            fontFamily: "'Space Mono', monospace",
-          }}
-        >
-          {level} · {stats?.total_points || 0} pts
-        </div>
+        {/* Points */}
+        {totalPoints !== null && (
+          <div
+            style={{
+              fontSize: "11px",
+              color,
+              fontWeight: 600,
+              fontFamily: "'Space Mono', monospace",
+            }}
+          >
+            {level} · {totalPoints} pts
+          </div>
+        )}
       </div>
     </div>
   );

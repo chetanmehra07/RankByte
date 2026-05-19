@@ -406,12 +406,6 @@ def update_streak(
 
     if last_active_date == today:
 
-        # Fix broken state
-        if user.streak_days == 0:
-
-            user.streak_days = 1
-            db.commit()
-
         return {
             "bonus_given": False,
             "streak_days": user.streak_days

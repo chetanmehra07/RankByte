@@ -40,6 +40,7 @@ DAILY_BONUS = 50
 
 class DailyCompleteRequest(BaseModel):
     challenge_id: int
+    daily_challenge_id: int
     answer: str
 
 
@@ -351,13 +352,13 @@ async def complete_daily(
     # ======================================================
 
     daily = (
-        db.query(DailyChallenge)
-        .filter(
-            DailyChallenge.challenge_id
-            == data.challenge_id
-        )
-        .first()
+    db.query(DailyChallenge)
+    .filter(
+        DailyChallenge.id
+        == data.daily_challenge_id
     )
+    .first()
+)
 
     if not daily:
         raise HTTPException(

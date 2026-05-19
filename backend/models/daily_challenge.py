@@ -8,7 +8,7 @@ class DailyChallenge(Base):
  
     id = Column(Integer, primary_key=True, index=True)
     challenge_id = Column(Integer, ForeignKey("challenges.id"), nullable=False)
-    date = Column(Date, default=date.today, unique=True)
+    date = Column(Date, default=date.today)
     bonus_points = Column(Integer, default=20)
     created_at = Column(DateTime, default=datetime.utcnow)
  

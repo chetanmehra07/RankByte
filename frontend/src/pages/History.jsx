@@ -31,7 +31,6 @@ const card = {
 
 export default function HistoryPage() {
   // TEMP USER
-  const user = { id: "test_user_1" };
 
   const [history, setHistory] = useState([]);
   const [mastery, setMastery] = useState([]);
@@ -40,8 +39,11 @@ export default function HistoryPage() {
   const [tab, setTab] = useState("history");
 
   useEffect(() => {
-    Promise.all([getHistory(user.id), getLanguageMastery(user.id)])
+    Promise.all([getHistory(), getLanguageMastery()])
       .then(([h, m]) => {
+        console.log("HISTORY:", h.data);
+        console.log("MASTERY:", m.data);
+
         setHistory(h.data || []);
         setMastery(m.data || []);
       })
@@ -49,7 +51,7 @@ export default function HistoryPage() {
         console.error("History page error:", err);
       })
       .finally(() => setLoading(false));
-  }, [user.id]);
+  }, []);
 
   return (
     <div

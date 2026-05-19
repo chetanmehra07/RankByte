@@ -204,13 +204,17 @@ async def submit_bugfix(
         language=challenge.language
     )
 
-    is_fixed = ai_feedback.get("is_fixed", False)
-
     score = ai_feedback.get("score", 0)
 
     # =========================
-# FINAL NORMALIZATION
-# =========================
+    # ACCEPTANCE LOGIC
+    # =========================
+
+    is_fixed = score >= 60
+
+    # =========================
+    # FINAL NORMALIZATION
+    # =========================
 
     if has_execution_error:
 
@@ -224,19 +228,7 @@ async def submit_bugfix(
 
     else:
 
-        # Use AI evaluation directly
-        is_fixed = ai_feedback.get("is_fixed", False)
-
-        score = ai_feedback.get("score", 0)
-
-        # Normalize successful fixes
-        if is_fixed:
-
-            score = max(score, 95)
-
-            ai_feedback["score"] = score
-
-            ai_feedback["is_fixed"] = True
+        ai_feedback["is_fixed"] = is_fixed
 
     # =========================
     # SAVE SUBMISSION

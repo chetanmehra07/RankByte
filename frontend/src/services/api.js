@@ -76,7 +76,7 @@ export const completeDaily = (data) => API.post("/daily/complete", data);
 // HISTORY
 // ======================================================
 
-export const getHistory = () => API.get("/history");
+export const getHistory = () => API.get("/history/me");
 
 export const getLanguageMastery = () => API.get("/history/language-mastery");
 

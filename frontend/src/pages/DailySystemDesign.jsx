@@ -1,13 +1,13 @@
 import { useState } from "react";
 
 import TimerDisplay from "../components/TimerDisplay";
-
-import { submitSystemDesign } from "../services/api";
+import { submitSystemDesign, completeDaily } from "../services/api";
 
 export default function DailySystemDesign({
   challenge,
   onBack,
   setRefreshPoints,
+  refreshChallenges,
 }) {
   const [answer, setAnswer] = useState("");
 
@@ -17,7 +17,9 @@ export default function DailySystemDesign({
 
   const [timerStopped, setTimerStopped] = useState(false);
 
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(
+    challenge?.already_completed || false,
+  );
 
   const [startTime] = useState(() => Date.now());
 
@@ -43,10 +45,23 @@ export default function DailySystemDesign({
 
       setResult(res.data);
 
+      await completeDaily({
+        challenge_id: challenge.challenge_id,
+        daily_challenge_id: challenge.daily_challenge_id,
+        answer: answer,
+      });
+
       setSubmitted(true);
 
       setTimerStopped(true);
-      setRefreshPoints((prev) => prev + 1);
+
+      if (setRefreshPoints) {
+        setRefreshPoints((prev) => prev + 1);
+      }
+
+      if (refreshChallenges) {
+        await refreshChallenges();
+      }
     } catch (err) {
       console.error(err.response?.data || err);
     } finally {

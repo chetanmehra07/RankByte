@@ -22,21 +22,23 @@ export default function DailyChallenge() {
   // ======================================================
   // LOAD DAILY CHALLENGES
   // ======================================================
+  const fetchChallenges = async () => {
+    try {
+      const res = await getDailyChallenge();
 
+      setDailyChallenges(res.data.daily_challenges || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchChallenges = async () => {
-      try {
-        const res = await getDailyChallenge();
-
-        setDailyChallenges(res.data.daily_challenges || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    const load = async () => {
+      await fetchChallenges();
     };
 
-    fetchChallenges();
+    load();
   }, []);
 
   // ======================================================
@@ -101,6 +103,15 @@ export default function DailyChallenge() {
       <DailyBugFix
         challenge={selectedChallenge}
         onBack={() => setSelectedChallenge(null)}
+        refreshChallenges={async () => {
+          await fetchChallenges();
+
+          const updated = await getDailyChallenge();
+
+          setDailyChallenges(updated.data.daily_challenges);
+
+          setSelectedChallenge(null);
+        }}
       />
     );
   }
@@ -117,6 +128,15 @@ export default function DailyChallenge() {
       <DailySystemDesign
         challenge={selectedChallenge}
         onBack={() => setSelectedChallenge(null)}
+        refreshChallenges={async () => {
+          await fetchChallenges();
+
+          const updated = await getDailyChallenge();
+
+          setDailyChallenges(updated.data.daily_challenges);
+
+          setSelectedChallenge(null);
+        }}
       />
     );
   }
@@ -274,20 +294,37 @@ export default function DailyChallenge() {
                   +{challenge.bonus_points} XP
                 </div>
 
-                <button
-                  onClick={() => setSelectedChallenge(challenge)}
-                  style={{
-                    padding: "12px 20px",
-                    border: "none",
-                    borderRadius: "12px",
-                    background: "var(--primary)",
-                    color: "#fff",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  Solve Challenge →
-                </button>
+                {challenge.already_completed ? (
+                  <button
+                    disabled
+                    style={{
+                      padding: "12px 20px",
+                      border: "none",
+                      borderRadius: "12px",
+                      background: "#1f2937",
+                      color: "#10b981",
+                      fontWeight: 700,
+                      cursor: "not-allowed",
+                    }}
+                  >
+                    Already Solved ✓
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setSelectedChallenge(challenge)}
+                    style={{
+                      padding: "12px 20px",
+                      border: "none",
+                      borderRadius: "12px",
+                      background: "var(--primary)",
+                      color: "#fff",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Solve Challenge →
+                  </button>
+                )}
               </div>
             </div>
           );

@@ -13,7 +13,7 @@ class User(Base):
     total_points = Column(Integer, default=0)
     level = Column(String, default="Beginner")
     streak_days = Column(Integer, default=0)
-    last_active = Column(DateTime, default=datetime.utcnow)
+    last_active = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     submissions = relationship("Submission", back_populates="user")

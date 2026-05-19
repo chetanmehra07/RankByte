@@ -83,12 +83,13 @@ async def verify_clerk_token(
         # ======================================================
 
         payload = jwt.decode(
-            token,
-            public_key,
-            algorithms=["RS256"],
-            issuer=CLERK_ISSUER,
-            options={"verify_aud": False}
-        )
+    token,
+    public_key,
+    algorithms=["RS256"],
+    issuer=CLERK_ISSUER,
+    options={"verify_aud": False},
+    leeway=30
+)
 
         
 
@@ -100,11 +101,18 @@ async def verify_clerk_token(
 
         email = payload.get("email")
 
+        first_name = payload.get("first_name")
+        last_name = payload.get("last_name")
+
+        full_name = " ".join(
+            part for part in [first_name, last_name]
+            if part
+        ).strip()
+
         username = (
-            payload.get("username")
+            full_name
+            or payload.get("username")
             or payload.get("name")
-            or payload.get("given_name")
-            or payload.get("family_name")
         )
 
         # fallback from email

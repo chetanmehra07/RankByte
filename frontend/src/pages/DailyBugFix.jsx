@@ -4,7 +4,7 @@ import CodeEditor from "../components/CodeEditor";
 import HintBox from "../components/HintBox";
 import TimerDisplay from "../components/TimerDisplay";
 
-import { submitBugFix } from "../services/api";
+import { submitBugFix, completeDaily } from "../services/api";
 
 const card = {
   background: "var(--card)",
@@ -12,7 +12,12 @@ const card = {
   borderRadius: "12px",
 };
 
-export default function DailyBugFix({ challenge, onBack, setRefreshPoints }) {
+export default function DailyBugFix({
+  challenge,
+  onBack,
+  setRefreshPoints,
+  refreshChallenges,
+}) {
   const initialCode = Array.isArray(challenge?.content?.faulty_code_lines)
     ? challenge.content.faulty_code_lines.join("\n")
     : challenge?.content?.buggy_code || "";
@@ -52,8 +57,21 @@ export default function DailyBugFix({ challenge, onBack, setRefreshPoints }) {
       setFeedback(res.data);
 
       if (res.data.is_fixed) {
+        await completeDaily({
+          challenge_id: challenge.challenge_id,
+          daily_challenge_id: challenge.daily_challenge_id,
+          answer: code,
+        });
+
         setCompleted(true);
-        setRefreshPoints((prev) => prev + 1);
+
+        if (setRefreshPoints) {
+          setRefreshPoints((prev) => prev + 1);
+        }
+
+        if (refreshChallenges) {
+          await refreshChallenges();
+        }
       }
     } catch (err) {
       console.error(err);

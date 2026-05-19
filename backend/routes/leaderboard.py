@@ -45,7 +45,7 @@ async def get_leaderboard(
     for i, u in enumerate(top_users)
 ]
 
-    print("LEADERBOARD DATA:", data)
+    
 
     return data
 

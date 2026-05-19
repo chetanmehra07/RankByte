@@ -6,9 +6,19 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getLeaderboard()
-      .then((r) => setLeaders(r.data || []))
-      .finally(() => setLoading(false));
+    const fetchLeaderboard = () => {
+      getLeaderboard()
+        .then((r) => setLeaders(r.data || []))
+        .finally(() => setLoading(false));
+    };
+
+    // Initial fetch
+    fetchLeaderboard();
+
+    // Auto refresh every 3 sec
+    const interval = setInterval(fetchLeaderboard, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const formatUsername = (username, index) => {
