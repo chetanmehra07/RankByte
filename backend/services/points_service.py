@@ -4,8 +4,18 @@ from models.user import User
 from models.points import PointTransaction
 from models.language_mastery import LanguageMastery
 
-from datetime import datetime, date
 
+from datetime import datetime, date
+from zoneinfo import ZoneInfo
+IST = ZoneInfo("Asia/Kolkata")
+
+
+def get_ist_now():
+    return datetime.now(IST)
+
+
+def get_ist_today():
+    return get_ist_now().date()
 
 # ======================================================
 # LANGUAGE DIFFICULTY
@@ -242,7 +252,7 @@ def add_points(
 
     if reason == "Daily streak bonus":
 
-        today = date.today()
+        today = get_ist_today()
 
         existing_bonus = db.query(
             PointTransaction
@@ -375,7 +385,7 @@ def update_language_mastery(
         mastery.points
     )
 
-    mastery.updated_at = datetime.utcnow()
+    mastery.updated_at = get_ist_now()
 
     db.commit()
 
@@ -400,7 +410,7 @@ def update_streak(
             "streak_days": 0
         }
 
-    today = date.today()
+    today = get_ist_today()
 
     last_active_date = (
         user.last_active.date()
@@ -459,7 +469,7 @@ def update_streak(
 
     user.level = update_user_level(user)
 
-    user.last_active = datetime.utcnow()
+    user.last_active = get_ist_now()
 
     db.commit()
 

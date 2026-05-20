@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from models.user import User
 from models.challenge import Challenge
@@ -162,7 +164,9 @@ async def get_daily_challenges(
         db.commit()
         db.refresh(user)
 
-    today = date.today()
+    today = datetime.now(
+    ZoneInfo("Asia/Kolkata")
+).date()
 
     difficulty_info = get_user_difficulty(
         user.total_points
