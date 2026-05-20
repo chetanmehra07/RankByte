@@ -21,16 +21,18 @@ export default function LeaderboardPage() {
     // Initial fetch
     fetchLeaderboard();
 
-    // Auto refresh
-    const interval = setInterval(fetchLeaderboard, 300);
-
     // Instant refresh event
-    window.addEventListener("leaderboard-refresh", fetchLeaderboard);
+    const handleRefresh = async () => {
+      // Small delay so DB commit finishes
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      await fetchLeaderboard();
+    };
+
+    window.addEventListener("leaderboard-refresh", handleRefresh);
 
     return () => {
-      clearInterval(interval);
-
-      window.removeEventListener("leaderboard-refresh", fetchLeaderboard);
+      window.removeEventListener("leaderboard-refresh", handleRefresh);
     };
   }, []);
 

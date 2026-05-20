@@ -41,9 +41,6 @@ export default function HistoryPage() {
   useEffect(() => {
     Promise.all([getHistory(), getLanguageMastery()])
       .then(([h, m]) => {
-        console.log("HISTORY:", h.data);
-        console.log("MASTERY:", m.data);
-
         setHistory(h.data || []);
         setMastery(m.data || []);
       })

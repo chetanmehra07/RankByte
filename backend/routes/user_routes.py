@@ -25,13 +25,13 @@ async def sync_user(
     db: Session = Depends(get_db)
 ):
 
-    print("SYNC ROUTE HIT")
+    
 
-    print("TOKEN:", token_payload)
+    
 
     clerk_id = token_payload["sub"]
 
-    print("CLERK ID:", clerk_id)
+    
 
     user = (
         db.query(User)
@@ -39,24 +39,24 @@ async def sync_user(
         .first()
     )
 
-    print("USER FOUND:", user)
+    
 
     if user:
 
-        print("OLD USERNAME:", user.username)
+        
 
         user.username = data.get(
             "username",
             user.username
         )
 
-        print("NEW USERNAME:", user.username)
+        
 
         db.commit()
 
         db.refresh(user)
 
-        print("DB UPDATED")
+       
 
     return {
         "success": True

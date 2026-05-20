@@ -56,7 +56,7 @@ def check_daily_question_limit(
 
     elif user.last_question_reset.date() != today:
 
-        print("RESETTING DAILY COUNT")
+        
 
         user.daily_question_count = 0
 
@@ -116,10 +116,10 @@ def increment_daily_question_count(
         timezone.utc
     )
 
-    print("BEFORE SAVE:", user.daily_question_count)
+    
 
     db.commit()
 
     db.refresh(user)
 
-    print("AFTER SAVE:", user.daily_question_count)
+   

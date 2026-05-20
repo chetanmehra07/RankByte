@@ -68,7 +68,7 @@ export default function DailySystemDesign({
       setSubmitting(false);
     }
   };
-  console.log("DAILY CHALLENGE:", challenge);
+
   return (
     <div
       style={{

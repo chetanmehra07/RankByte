@@ -26,8 +26,6 @@ export default function PointsBadge({ refreshTrigger }) {
       try {
         const res = await getUserStats();
 
-        console.log("POINT BADGE:", res.data);
-
         if (mounted) {
           setStats(res.data);
         }
