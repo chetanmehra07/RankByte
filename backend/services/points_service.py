@@ -291,9 +291,17 @@ def add_points(
 
     leveled_up = old_level != user.level
 
-    db.commit()
+    try:
 
-    db.refresh(user)
+        db.commit()
+
+        db.refresh(user)
+
+    except Exception:
+
+        db.rollback()
+
+        raise
 
     return {
         "new_total": user.total_points,
@@ -415,30 +423,39 @@ def update_streak(
     # CONSECUTIVE DAY
     # ======================================================
 
-    if (
-        last_active_date and
-        (today - last_active_date).days == 1
-    ):
+    # FIRST TIME USER
+    if not last_active_date:
+
+        user.streak_days = 1
+        give_bonus = True
+
+    # CONSECUTIVE DAY
+    elif (today - last_active_date).days == 1:
 
         user.streak_days += 1
+        give_bonus = True
 
+    # MISSED DAY
     else:
 
         user.streak_days = 1
+        give_bonus = False
 
     # ======================================================
     # STREAK BONUS
     # ======================================================
 
-    transaction = PointTransaction(
-        user_id=user_id,
-        points_earned=5,
-        reason="Daily streak bonus"
-    )
+    if give_bonus:
 
-    db.add(transaction)
+        transaction = PointTransaction(
+            user_id=user_id,
+            points_earned=5,
+            reason="Daily streak bonus"
+        )
 
-    user.total_points += 5
+        db.add(transaction)
+
+        user.total_points += 5
 
     user.level = update_user_level(user)
 

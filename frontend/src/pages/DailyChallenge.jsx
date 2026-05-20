@@ -285,13 +285,13 @@ export default function DailyChallenge() {
               >
                 <div
                   style={{
-                    fontSize: "18px",
+                    fontSize: "16px",
                     fontWeight: 600,
                     color: isSystem ? "var(--primary)" : "var(--primary)",
                     fontFamily: "'Space Mono', monospace",
                   }}
                 >
-                  +{challenge.bonus_points} XP
+                  +{challenge.bonus_points} points
                 </div>
 
                 {challenge.already_completed ? (
@@ -301,8 +301,8 @@ export default function DailyChallenge() {
                       padding: "12px 20px",
                       border: "none",
                       borderRadius: "12px",
-                      background: "#1f2937",
-                      color: "#10b981",
+                      background: "var(--bg)",
+                      color: "var(--primary)",
                       fontWeight: 700,
                       cursor: "not-allowed",
                     }}

@@ -254,7 +254,7 @@ export default function DailyBugFix({
               color: "#6a6a8a",
             }}
           >
-            +{challenge.bonus_points} XP
+            +{challenge.bonus_points} points
           </span>
         </div>
       </div>

@@ -31,7 +31,7 @@ router = APIRouter(
     tags=["daily"]
 )
 
-DAILY_BONUS = 50
+DAILY_BONUS = 25
 
 
 # ======================================================

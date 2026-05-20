@@ -95,13 +95,13 @@ const clerkAppearance = {
     },
 
     socialButtonsBlockButton: {
-      background: "#0b0b12",
+      background: "var(--bg)",
       border: "1px solid rgba(255,255,255,0.06)",
-      color: "#ffffff",
+      color: "var(--primary)",
     },
 
     socialButtonsBlockButtonText: {
-      color: "#ffffff",
+      color: "var(--text)",
     },
 
     formFieldLabel: {

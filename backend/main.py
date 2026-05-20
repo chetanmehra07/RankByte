@@ -24,6 +24,7 @@ from routes.daily import router as daily_router
 from routes.hints import router as hints_router
 from routes.leaderboard import router as leaderboard_router
 from routes.auth import router as auth_router
+from routes.user_routes import router as user_router
 
 app = FastAPI()
 
@@ -50,6 +51,7 @@ app.include_router(hints_router)
 app.include_router(daily_router)
 app.include_router(leaderboard_router)
 app.include_router(auth_router)
+app.include_router(user_router)
 
 @app.get("/")
 def root():

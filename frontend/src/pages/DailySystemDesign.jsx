@@ -230,7 +230,7 @@ export default function DailySystemDesign({
                 fontWeight: 700,
               }}
             >
-              🏆 +{challenge.bonus_points} XP
+              🏆 +{challenge.bonus_points} points
             </div>
           </div>
 

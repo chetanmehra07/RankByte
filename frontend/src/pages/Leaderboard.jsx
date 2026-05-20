@@ -6,19 +6,32 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLeaderboard = () => {
-      getLeaderboard()
-        .then((r) => setLeaders(r.data || []))
-        .finally(() => setLoading(false));
+    const fetchLeaderboard = async () => {
+      try {
+        const r = await getLeaderboard();
+
+        setLeaders(r.data || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     // Initial fetch
     fetchLeaderboard();
 
-    // Auto refresh every 3 sec
-    const interval = setInterval(fetchLeaderboard, 3000);
+    // Auto refresh
+    const interval = setInterval(fetchLeaderboard, 300);
 
-    return () => clearInterval(interval);
+    // Instant refresh event
+    window.addEventListener("leaderboard-refresh", fetchLeaderboard);
+
+    return () => {
+      clearInterval(interval);
+
+      window.removeEventListener("leaderboard-refresh", fetchLeaderboard);
+    };
   }, []);
 
   const formatUsername = (username, index) => {
@@ -117,7 +130,7 @@ export default function LeaderboardPage() {
               if (isTop1 || isTop2 || isTop3) {
                 specialStyle = {
                   background: "var(--card)",
-                  boxShadow: "0 0 3px var(--primary)",
+                  boxShadow: "0 0 2px var(--primary)",
                 };
               }
 

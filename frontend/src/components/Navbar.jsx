@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import {
@@ -6,11 +7,13 @@ import {
   SignInButton,
   SignUpButton,
   useClerk,
+  useUser,
 } from "@clerk/clerk-react";
 
 import useTheme from "../context/useTheme";
 
 import PointsBadge from "./PointsBadge";
+import { syncUser } from "../services/api";
 
 const TABS = [
   { path: "/dashboard", label: "Dashboard" },
@@ -99,12 +102,30 @@ const clerkAppearance = {
 
 export default function Navbar({ refreshTrigger }) {
   const { signOut } = useClerk();
+  const { user } = useUser();
 
   const location = useLocation();
 
   const navigate = useNavigate();
 
   const { theme, toggleTheme } = useTheme();
+  useEffect(() => {
+    const fullName = user?.fullName;
+
+    const username = user?.username;
+
+    if (!fullName && !username) return;
+
+    const sync = async () => {
+      await syncUser({
+        username: fullName || username || "Developer",
+      });
+
+      window.dispatchEvent(new Event("leaderboard-refresh"));
+    };
+
+    sync();
+  }, [user?.fullName, user?.username]);
 
   return (
     <nav

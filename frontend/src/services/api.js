@@ -83,6 +83,11 @@ export const getLanguageMastery = () => API.get("/history/language-mastery");
 // ======================================================
 // LEADERBOARD
 // ======================================================
+export const syncUser = (data) => {
+  console.log("CORRECT API CALLED");
+
+  return API.post("/user/sync-user", data);
+};
 
 export const getLeaderboard = () => API.get("/leaderboard/top");
 
