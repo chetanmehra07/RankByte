@@ -43,7 +43,7 @@ async def sync_user(
 
     if user:
 
-        
+        print("OLD USERNAME:", user.username)
 
         user.username = data.get(
             "username",
@@ -56,7 +56,7 @@ async def sync_user(
 
         db.refresh(user)
 
-       
+        
 
     return {
         "success": True

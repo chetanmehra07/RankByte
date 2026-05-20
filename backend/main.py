@@ -31,7 +31,10 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
 
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://rank-byte.vercel.app",
+    ],
 
     allow_credentials=True,
 
