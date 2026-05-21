@@ -82,10 +82,13 @@ export default function SystemDesign({ setRefreshPoints }) {
 
       setResult(res.data);
 
-      setSubmitted(true);
+      if (res.data.is_correct) {
+        setSubmitted(true);
 
-      setTimerStopped(true);
-      setRefreshPoints((prev) => prev + 1);
+        setTimerStopped(true);
+
+        setRefreshPoints((prev) => prev + 1);
+      }
     } catch (err) {
       console.error(err.response?.data || err);
     } finally {

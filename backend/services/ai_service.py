@@ -401,26 +401,154 @@ RETURN FORMAT
     return clean_json_response(
         response.choices[0].message.content
     )
-def evaluate_system_design(scenario: str, requirements: list, user_answer: str, user_level: str) -> dict:
+def evaluate_system_design(
+    scenario: str,
+    requirements: list,
+    user_answer: str,
+    user_level: str
+) -> dict:
+
+    # =========================================
+    # BASIC VALIDATION BEFORE AI
+    # =========================================
+
+    cleaned_answer = user_answer.strip()
+
+    word_count = len(cleaned_answer.split())
+
+    # Reject extremely short answers
+    if word_count < 25:
+
+        return {
+            "score": 0,
+            "feedback": "Answer is too short.",
+            "what_was_good": [],
+            "what_was_missing": [
+                "Architecture explanation",
+                "Scalability discussion",
+                "System components"
+            ],
+            "suggested_improvements": [
+                "Provide a detailed system design answer"
+            ]
+        }
+
+    # Reject gibberish / random text
+    meaningful_words = re.findall(r"[a-zA-Z]{3,}", cleaned_answer)
+
+    if len(meaningful_words) < 10:
+
+        return {
+            "score": 0,
+            "feedback": "Answer appears to contain random or meaningless text.",
+            "what_was_good": [],
+            "what_was_missing": [
+                "Meaningful architecture discussion"
+            ],
+            "suggested_improvements": [
+                "Write a real system design explanation"
+            ]
+        }
+
+    # =========================================
+    # STRICT AI EVALUATION
+    # =========================================
+
     prompt = f"""
-Evaluate this system design answer from a {user_level} developer.
-Scenario: {scenario}
-Requirements: {json.dumps(requirements)}
-User's answer: {user_answer}
+You are a STRICT system design interviewer.
+
+Your job is to critically evaluate the user's answer.
+
+==================================
+SCENARIO
+==================================
+
+{scenario}
+
+==================================
+REQUIREMENTS
+==================================
+
+{json.dumps(requirements)}
+
+==================================
+USER ANSWER
+==================================
+
+{user_answer}
+
+==================================
+VERY IMPORTANT SCORING RULES
+==================================
+
+1. If the answer is nonsense, random text,
+irrelevant, or extremely vague:
+   - score MUST be below 20
+
+2. If the answer is extremely short:
+   - score MUST be below 30
+
+3. ONLY give 60+ if:
+   - architecture is explained
+   - components are identified
+   - scalability is discussed
+   - databases/cache/apis are mentioned
+   - tradeoffs are considered
+
+4. ONLY give 80+ for strong production-level thinking.
+
+5. Be STRICT.
+
+6. Do NOT inflate scores.
+
+==================================
+SCORING RUBRIC
+==================================
+
+Architecture Design: /20
+Scalability: /20
+Database Design: /20
+System Components & APIs: /20
+Tradeoffs & Reliability: /20
+
+==================================
+RETURN FORMAT
+==================================
 
 Return ONLY valid JSON:
+
 {{
     "score": 0 to 100,
-    "feedback": "detailed overall feedback",
-    "what_was_good": ["good point 1", "good point 2"],
-    "what_was_missing": ["missing point 1", "missing point 2"],
-    "suggested_improvements": ["improvement 1", "improvement 2"]
+
+    "feedback": "overall evaluation",
+
+    "what_was_good": [
+        "good point"
+    ],
+
+    "what_was_missing": [
+        "missing item"
+    ],
+
+    "suggested_improvements": [
+        "improvement"
+    ]
 }}
 """
+
     response = client.chat.completions.create(
         model=MODEL,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
         response_format={"type": "json_object"},
-        max_tokens=800, temperature=0.3
+        max_tokens=900,
+        temperature=0
     )
-    return clean_json_response(response.choices[0].message.content)
+
+    return clean_json_response(
+        response.choices[0].message.content
+    )

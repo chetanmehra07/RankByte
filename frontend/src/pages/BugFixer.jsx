@@ -117,12 +117,14 @@ export default function BugFixer({ setRefreshPoints }) {
       });
 
       setFeedback(res.data);
-      setSubmitted(true);
-
-      setTimerStopped(true);
 
       if (res.data.is_fixed) {
+        setSubmitted(true);
+
         setCompleted(true);
+
+        setTimerStopped(true);
+
         setRefreshPoints((prev) => prev + 1);
       }
     } catch (err) {
