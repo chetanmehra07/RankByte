@@ -412,12 +412,22 @@ def evaluate_system_design(
     # BASIC VALIDATION BEFORE AI
     # =========================================
 
+
     cleaned_answer = user_answer.strip()
 
     word_count = len(cleaned_answer.split())
 
+    meaningful_words = re.findall(
+        r"[a-zA-Z]{3,}",
+        cleaned_answer
+    )
+
+    unique_words = len(
+        set(word.lower() for word in meaningful_words)
+    )
+
     # Reject extremely short answers
-    if word_count < 25:
+    if word_count < 8:
 
         return {
             "score": 0,
@@ -429,14 +439,12 @@ def evaluate_system_design(
                 "System components"
             ],
             "suggested_improvements": [
-                "Provide a detailed system design answer"
+                "Provide a more detailed system design answer"
             ]
         }
 
-    # Reject gibberish / random text
-    meaningful_words = re.findall(r"[a-zA-Z]{3,}", cleaned_answer)
-
-    if len(meaningful_words) < 10:
+    # Reject gibberish / spam
+    if unique_words < 5:
 
         return {
             "score": 0,
