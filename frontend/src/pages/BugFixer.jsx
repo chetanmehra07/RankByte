@@ -53,7 +53,9 @@ export default function BugFixer({ setRefreshPoints }) {
 
     setCompleted(false);
 
-    setStartTime(Date.now());
+    setSubmitted(false);
+
+    setTimerStopped(true);
 
     try {
       const res = await generateChallenge({
@@ -70,6 +72,9 @@ export default function BugFixer({ setRefreshPoints }) {
           res.data.faulty_code_lines?.join("\n") ||
           "",
       );
+      setStartTime(Date.now());
+
+      setTimerStopped(false);
     } catch (err) {
       console.error(err);
 
@@ -546,44 +551,76 @@ export default function BugFixer({ setRefreshPoints }) {
                   marginTop: "10px",
                 }}
               >
-                Find and fix all the bugs:
+                Debug, analyze, and complete the implementation:
               </div>
 
               <CodeEditor value={code} onChange={setCode} language={lang} />
 
               {/* SUBMIT BUTTON */}
-              <button
-                onClick={submit}
-                disabled={submitting || submitted}
+              <div
                 style={{
+                  display: "flex",
+
+                  gap: "12px",
+
                   marginTop: "18px",
-
-                  padding: "14px 24px",
-
-                  background: submitted
-                    ? "#374151"
-                    : "linear-gradient(135deg, #f97316, #ea580c)",
-
-                  color: "#fff",
-
-                  border: "none",
-
-                  borderRadius: "14px",
-
-                  fontWeight: 700,
-
-                  cursor: submitted ? "not-allowed" : "pointer",
-
-                  opacity: submitted ? 0.7 : 1,
                 }}
               >
-                {submitted
-                  ? "Already Submitted"
-                  : submitting
-                    ? "Submitting..."
-                    : "Submit Solution"}
-              </button>
-              {/* RESET BUTTON */}
+                {/* SUBMIT BUTTON */}
+                <button
+                  onClick={submit}
+                  disabled={submitting || submitted}
+                  style={{
+                    padding: "14px 24px",
+
+                    background: submitted
+                      ? "#374151"
+                      : "linear-gradient(135deg, #f97316, #ea580c)",
+
+                    color: "#fff",
+
+                    border: "none",
+
+                    borderRadius: "14px",
+
+                    fontWeight: 700,
+
+                    cursor: submitted ? "not-allowed" : "pointer",
+
+                    opacity: submitted ? 0.7 : 1,
+                  }}
+                >
+                  {submitted
+                    ? "Already Submitted"
+                    : submitting
+                      ? "Submitting..."
+                      : "Submit Solution"}
+                </button>
+
+                {/* NEXT QUESTION */}
+                {submitted && (
+                  <button
+                    onClick={generate}
+                    style={{
+                      padding: "14px 24px",
+
+                      background: "var(--primary)",
+
+                      color: "#fff",
+
+                      border: "none",
+
+                      borderRadius: "14px",
+
+                      fontWeight: 700,
+
+                      cursor: "pointer",
+                    }}
+                  >
+                    Next Question →
+                  </button>
+                )}
+              </div>
 
               <div style={{ marginTop: "18px" }}>
                 <HintBox

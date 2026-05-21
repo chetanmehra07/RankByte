@@ -35,9 +35,9 @@ export default function SystemDesign({ setRefreshPoints }) {
 
       setSubmitted(false);
 
-      setTimerStopped(false);
+      setTimerStopped(true);
 
-      setStartTime(Date.now());
+      setChallenge(null);
 
       const res = await generateChallenge({
         language: "python",
@@ -46,6 +46,9 @@ export default function SystemDesign({ setRefreshPoints }) {
 
       setChallenge(res.data);
       setRemainingQuestions(res.data.remaining_questions ?? 0);
+      setStartTime(Date.now());
+
+      setTimerStopped(false);
     } catch (err) {
       console.error(err);
 
@@ -470,39 +473,72 @@ export default function SystemDesign({ setRefreshPoints }) {
                 }}
               />
 
-              <button
-                onClick={submit}
-                disabled={submitting || submitted}
+              <div
                 style={{
+                  display: "flex",
+                  gap: "12px",
                   marginTop: "18px",
-
-                  padding: "14px 24px",
-
-                  background: submitted
-                    ? "#4b5563"
-                    : "linear-gradient(135deg, #f97316, #ea580c)",
-
-                  color: "#fff",
-
-                  border: "none",
-
-                  borderRadius: "14px",
-
-                  fontWeight: 700,
-
-                  cursor: submitted ? "not-allowed" : "pointer",
-
-                  opacity: submitted ? 0.85 : 1,
-
-                  transition: "0.25s",
                 }}
               >
-                {submitted
-                  ? "Already Submitted"
-                  : submitting
-                    ? "Submitting..."
-                    : "Submit Solution"}
-              </button>
+                {/* SUBMIT BUTTON */}
+                <button
+                  onClick={submit}
+                  disabled={submitting || submitted}
+                  style={{
+                    padding: "14px 24px",
+
+                    background: submitted
+                      ? "#4b5563"
+                      : "linear-gradient(135deg, #f97316, #ea580c)",
+
+                    color: "#fff",
+
+                    border: "none",
+
+                    borderRadius: "14px",
+
+                    fontWeight: 700,
+
+                    cursor: submitted ? "not-allowed" : "pointer",
+
+                    opacity: submitted ? 0.85 : 1,
+
+                    transition: "0.25s",
+                  }}
+                >
+                  {submitted
+                    ? "Already Submitted"
+                    : submitting
+                      ? "Submitting..."
+                      : "Submit Solution"}
+                </button>
+
+                {/* NEXT QUESTION BUTTON */}
+                {submitted && (
+                  <button
+                    onClick={generate}
+                    style={{
+                      padding: "14px 24px",
+
+                      background: "var(--primary)",
+
+                      color: "#fff",
+
+                      border: "none",
+
+                      borderRadius: "14px",
+
+                      fontWeight: 700,
+
+                      cursor: "pointer",
+
+                      transition: "0.25s",
+                    }}
+                  >
+                    Next Question →
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* RIGHT */}
