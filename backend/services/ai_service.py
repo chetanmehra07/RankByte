@@ -102,44 +102,147 @@ def generate_bug_fix_challenge(
 ) -> dict:
 
     prompt = f"""
-You are an expert at creating debugging challenges.
+You are a senior software engineer and elite debugging challenge creator.
 
-Generate a faulty code challenge for a {user_level} developer
-(total points: {user_points}).
+Generate a REALISTIC and HIGH-QUALITY bug-fix coding challenge
+for a {user_level} developer (total points: {user_points}).
 
 Language: {language}
 
-Bug count rules:
-- Beginner: 1-2 simple bugs
-- Developer: 2-3 bugs
-- Pro: 3-4 bugs
-- Expert/Master: 4-5 bugs
+==================================================
+PLATFORM CONTEXT
+==================================================
 
-IMPORTANT:
+This platform is NOT for absolute beginners.
+
+All challenges should feel like:
+- real engineering debugging tasks
+- interview-quality problems
+- production-level failures
+- competitive coding scenarios
+- backend/frontend/system debugging tasks
+
+NEVER generate:
+- trivial calculators
+- simple counters
+- basic CRUD examples
+- beginner loop exercises
+- toy arithmetic problems
+- overly educational examples
+
+==================================================
+DIFFICULTY GUIDELINES
+==================================================
+
+- Beginner:
+  Entry-level professional debugging involving:
+  arrays, strings, functions, edge cases,
+  incorrect conditions, and intermediate logic bugs.
+
+- Developer:
+  Real-world debugging involving:
+  recursion, hashing, sorting, APIs,
+  object-oriented code, async flows,
+  and performance-related mistakes.
+
+- Pro:
+  Complex debugging involving:
+  advanced data structures,
+  graph/tree traversal,
+  dynamic programming,
+  caching logic,
+  concurrency issues,
+  hidden edge cases,
+  and optimization bugs.
+
+- Expert:
+  Production-grade debugging involving:
+  distributed systems,
+  race conditions,
+  async failures,
+  memory optimization,
+  scalability bottlenecks,
+  deadlocks,
+  database consistency,
+  and architectural flaws.
+
+- Master:
+  Elite system-level debugging involving:
+  microservices,
+  high-scale distributed systems,
+  fault tolerance,
+  real-time systems,
+  load balancing,
+  network failures,
+  multithreaded optimization,
+  infrastructure-level failures,
+  and reliability engineering.
+
+==================================================
+IMPORTANT RULES
+==================================================
+
+- Difficulty must depend on reasoning complexity,
+  NOT number of bugs.
+
+- The bugs should require deep debugging skill,
+  not simple syntax corrections.
+
+- Use realistic function names,
+  realistic business logic,
+  and production-like code.
+
+- Include hidden edge cases where appropriate.
+
+- For higher levels:
+  - bugs should not be obvious immediately
+  - require deeper reasoning
+  - require understanding system behavior
+  - require debugging flow analysis
+
+- The challenge should feel like something
+  a professional engineer might actually face.
+
+==================================================
+RETURN RULES
+==================================================
+
 - Return ONLY valid JSON
 - No markdown
+- No explanations
 - No triple backticks
 - Keep JSON compact
 - Ensure JSON is COMPLETE and CLOSED properly
 
-Return ONLY this JSON format:
+==================================================
+RETURN FORMAT
+==================================================
 
 {{
     "title": "bug fix challenge title",
+
     "description": "what the code is supposed to do",
+
     "faulty_code_lines": [
         "line 1",
         "line 2"
     ],
+
     "bugs_present": [
-        "bug 1"
+        "bug 1",
+        "bug 2"
     ],
+
     "correct_solution_lines": [
-        "line 1"
+        "line 1",
+        "line 2"
     ],
-    "difficulty": "Easy",
+
+    "difficulty": "Easy/Medium/Hard",
+
     "hints": [
-        "hint 1"
+        "hint 1",
+        "hint 2"
     ]
 }}
 """
@@ -161,8 +264,8 @@ Return ONLY this JSON format:
                     }
                 ],
                 response_format={"type": "json_object"},
-                max_tokens=1500,
-                temperature=0.3
+                max_tokens=2000,
+                temperature=0.5
             )
 
             return clean_json_response(
@@ -178,37 +281,212 @@ Return ONLY this JSON format:
     raise ValueError(
         "Failed to generate valid bug-fix challenge JSON"
     )
+def generate_system_design_challenge(
+    user_level: str,
+    user_points: int
+) -> dict:
 
-def generate_system_design_challenge(user_level: str, user_points: int) -> dict:
     prompt = f"""
-You are an expert system design interviewer.
-Generate a system design challenge for a {user_level} developer (total points: {user_points}).
+You are a senior staff engineer and elite system design interviewer.
 
-Complexity rules:
-- Beginner: Simple designs (e.g. Design a Todo App)
-- Developer: Medium designs (e.g. Design a URL shortener)
-- Pro: Complex designs (e.g. Design a notification system)
-- Expert: Advanced designs (e.g. Design Twitter feed algorithm)
-- Master: Expert designs (e.g. Design a distributed cache like Redis)
+Generate a HIGH-QUALITY and REALISTIC system design challenge
+for a {user_level} developer (total points: {user_points}).
 
-Return ONLY a valid JSON object:
+==================================================
+PLATFORM CONTEXT
+==================================================
+
+This platform is NOT for absolute beginners.
+
+All system design challenges should feel like:
+- real engineering interview questions
+- scalable production systems
+- backend architecture problems
+- distributed systems design
+- infrastructure engineering tasks
+- high-scale application design
+
+NEVER generate:
+- trivial apps
+- toy systems
+- basic CRUD designs
+- simple todo apps
+- basic calculator systems
+- unrealistic educational examples
+
+==================================================
+DIFFICULTY GUIDELINES
+==================================================
+
+- Beginner:
+  Entry-level professional system design involving:
+  API design,
+  authentication,
+  caching basics,
+  database selection,
+  pagination,
+  file uploads,
+  and moderate scalability.
+
+  Example scope:
+  - Design an online code snippet sharing platform
+  - Design a collaborative notes app
+  - Design a basic analytics dashboard backend
+
+- Developer:
+  Real-world scalable systems involving:
+  queues,
+  notifications,
+  websocket systems,
+  search systems,
+  CDN usage,
+  rate limiting,
+  retries,
+  monitoring,
+  and horizontal scaling.
+
+  Example scope:
+  - Design a URL shortener at scale
+  - Design a live chat system
+  - Design a notification delivery service
+
+- Pro:
+  Complex distributed systems involving:
+  microservices,
+  distributed caching,
+  event-driven architecture,
+  consistency tradeoffs,
+  database partitioning,
+  async processing,
+  and high throughput systems.
+
+  Example scope:
+  - Design a scalable e-commerce search engine
+  - Design a ride matching system
+  - Design a video processing pipeline
+
+- Expert:
+  Production-grade large-scale architecture involving:
+  fault tolerance,
+  distributed coordination,
+  real-time systems,
+  multi-region deployment,
+  replication,
+  stream processing,
+  large-scale feeds,
+  advanced scaling,
+  and reliability engineering.
+
+  Example scope:
+  - Design Twitter/X timeline generation
+  - Design a distributed payment processing system
+  - Design a real-time multiplayer game backend
+  - Design a distributed metrics ingestion platform
+
+- Master:
+  Elite infrastructure-level distributed systems involving:
+  globally distributed architecture,
+  consensus systems,
+  service discovery,
+  leader election,
+  distributed locking,
+  massive-scale caching,
+  high availability guarantees,
+  infrastructure orchestration,
+  and low-latency distributed computing.
+
+  Example scope:
+  - Design Redis
+  - Design Kubernetes scheduler
+  - Design Google Docs realtime sync engine
+  - Design a distributed CDN
+  - Design Kafka-like event streaming system
+
+==================================================
+IMPORTANT RULES
+==================================================
+
+- Difficulty should depend on architecture complexity,
+  scalability reasoning,
+  tradeoff analysis,
+  and distributed systems understanding.
+
+- Every challenge MUST require:
+  - scalability discussion
+  - database reasoning
+  - API/service architecture
+  - caching considerations
+  - reliability thinking
+
+- Higher-level challenges should require:
+  - tradeoff analysis
+  - bottleneck handling
+  - fault tolerance
+  - consistency discussion
+  - production-level reasoning
+
+- Challenges should feel realistic and modern.
+
+==================================================
+RETURN RULES
+==================================================
+
+- Return ONLY valid JSON
+- No markdown
+- No explanations
+- No triple backticks
+- Ensure JSON is COMPLETE and CLOSED properly
+
+==================================================
+RETURN FORMAT
+==================================================
+
 {{
     "title": "system design challenge title",
-    "scenario": "detailed scenario description",
-    "requirements": ["functional req 1", "functional req 2", "non-functional req 1"],
-    "evaluation_criteria": ["criteria 1", "criteria 2"],
-    "sample_answer_outline": "brief outline of what a good answer includes",
-    "difficulty": "Easy or Medium or Hard",
-    "hints": ["architectural hint 1", "scaling hint", "data storage hint"]
+
+    "scenario": "detailed realistic scenario description",
+
+    "requirements": [
+        "functional requirement 1",
+        "functional requirement 2",
+        "non-functional requirement"
+    ],
+
+    "evaluation_criteria": [
+        "architecture quality",
+        "scalability reasoning",
+        "tradeoff analysis"
+    ],
+
+    "sample_answer_outline":
+        "brief outline of what a strong answer should include",
+
+    "difficulty": "Easy/Medium/Hard",
+
+    "hints": [
+        "architecture hint",
+        "scaling hint",
+        "database hint"
+    ]
 }}
 """
+
     response = client.chat.completions.create(
         model=MODEL,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
         response_format={"type": "json_object"},
-        max_tokens=1200, temperature=0.7
+        max_tokens=2000,
+        temperature=0.6
     )
-    return clean_json_response(response.choices[0].message.content)
+
+    return clean_json_response(
+        response.choices[0].message.content
+    )
 
 
 def get_single_hint(challenge_description: str, language: str, hints_used: int, user_level: str) -> dict:
