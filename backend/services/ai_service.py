@@ -631,12 +631,13 @@ VERY IMPORTANT RULES
    - maximum score 20
 9. DO NOT act like a senior reviewer.
 10. Act like an online coding platform judge.
-11. If the original bug no longer exists,
-    it MUST be considered fixed even if the implementation is imperfect.
+11. A bug should ONLY be marked as fixed if:
+    - the original issue is fully resolved
+    - the bug is no longer reproducible
 12. For EACH original bug:
-    - check whether it still exists
-    - if removed -> mark fixed
-    - if still present -> mark missed
+    - verify whether the bug can still occur
+    - only mark fixed if the issue is completely resolved
+    - if the issue still partially exists, mark it as missed
 
 ========================
 RETURN RULES
@@ -663,9 +664,7 @@ RETURN FORMAT
         "remaining bug"
     ],
 
-    "feedback": "short evaluation summary",
-
-    
+    "feedback": "short evaluation summary"
 }}
 """
 
