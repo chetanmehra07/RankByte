@@ -580,8 +580,6 @@ def evaluate_bug_fix(
 ) -> dict:
 
     prompt = f"""
-"You are an automated bug-fix judge."
-
 Your ONLY job is to verify whether the ORIGINAL known bugs were fixed.
 
 ========================
@@ -599,7 +597,7 @@ ORIGINAL FAULTY CODE
 ========================
 KNOWN BUGS
 ========================
-{json.dumps(bugs_present)}
+{json.dumps(bugs_present, indent=2)}
 
 ========================
 USER FIXED CODE
@@ -613,31 +611,72 @@ VERY IMPORTANT RULES
 ========================
 
 1. ONLY evaluate the ORIGINAL known bugs.
+
 2. DO NOT invent new bugs.
+
 3. DO NOT suggest improvements.
+
 4. DO NOT reduce score for:
    - coding style
    - formatting
    - optimization
    - robustness
    - optional validation
+
 5. Ignore best-practice suggestions unless they are directly related to the original bugs.
+
 6. If ALL original bugs are fixed:
    - set "is_fixed" = true
    - score MUST be between 95-100
+
 7. If some bugs remain:
    - explain ONLY those remaining bugs
+
 8. If code is broken or invalid:
    - maximum score 20
+
 9. DO NOT act like a senior reviewer.
+
 10. Act like an online coding platform judge.
+
 11. A bug should ONLY be marked as fixed if:
     - the original issue is fully resolved
     - the bug is no longer reproducible
+    - the fix correctly handles the original failing scenario
+    - the solution does not still contain partial forms of the same bug
+
 12. For EACH original bug:
     - verify whether the bug can still occur
-    - only mark fixed if the issue is completely resolved
+    - test whether the fix actually prevents the original failure
     - if the issue still partially exists, mark it as missed
+    - only mark fixed if the issue is completely resolved under normal usage
+
+13. If a fix only reduces the severity of a bug
+    but does not fully eliminate it,
+    the bug should still be considered unresolved.
+
+========================
+SCORING GUIDE
+========================
+
+- All bugs fully fixed:
+  95-100
+
+- Most bugs fixed:
+  70-94
+
+- Some bugs fixed:
+  40-69
+
+- Minimal progress:
+  10-39
+
+- Code broken or invalid:
+  0-20
+
+Partial fixes should NOT receive full marks.
+Minor mitigation does NOT count as a complete fix.
+NEVER reduce score for unrelated reasons.
 
 ========================
 RETURN RULES
@@ -671,19 +710,20 @@ RETURN FORMAT
     response = client.chat.completions.create(
         model=MODEL,
         messages=[
-    {
-        "role": "system",
-        "content": (
-            "You ONLY verify whether listed bugs were fixed. "
-            "You do NOT perform general code review. "
-            "Do NOT invent new bugs or reduce scores for unrelated reasons."
-        )
-    },
-    {
-        "role": "user",
-        "content": prompt
-    }
-],
+            {
+                "role": "system",
+                "content": (
+                    "You ONLY verify whether listed bugs were fixed. "
+                    "You do NOT perform general code review. "
+                    "Do NOT invent new bugs or reduce scores for unrelated reasons. "
+                    "Partial fixes should receive partial credit, not full marks."
+                )
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
         response_format={"type": "json_object"},
         max_tokens=800,
         temperature=0
