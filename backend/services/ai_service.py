@@ -203,6 +203,53 @@ IMPORTANT RULES
 - The challenge should feel like something
   a professional engineer might actually face.
 
+- The bugs_present field is EXTREMELY important.
+  Each bug must be precise enough for automated evaluation.
+
+==================================================
+BUG DESCRIPTION QUALITY RULES
+==================================================
+
+Every item in "bugs_present" MUST:
+
+- describe the exact failing behavior
+- explain why the behavior is incorrect
+- describe the real impact of the bug
+- be specific and objectively testable
+- be independently verifiable
+
+DO NOT use vague bug descriptions like:
+- "logic issue"
+- "cache bug"
+- "threading problem"
+- "API issue"
+
+Instead, describe:
+- the root cause
+- the incorrect behavior
+- the observable failure
+
+GOOD BUG EXAMPLES:
+
+- "get() updates timestamps but does not move accessed nodes to the most recently used position, breaking LRU eviction behavior"
+
+- "worker threads access the shared task queue without synchronization, causing race conditions and inconsistent processing order"
+
+- "process_order subtracts the entire discounted total instead of subtracting only the discount amount"
+
+- "database updates occur before transaction validation completes, allowing invalid orders to be committed"
+
+For higher difficulty levels:
+- bugs should involve hidden logical failures
+- state inconsistency
+- concurrency flaws
+- algorithmic mistakes
+- lifecycle issues
+- scalability problems
+- edge-case failures
+
+The bug descriptions must be detailed enough that an automated evaluator can accurately determine whether each bug still exists.
+
 ==================================================
 RETURN RULES
 ==================================================
@@ -258,6 +305,14 @@ RETURN FORMAT
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are an elite debugging challenge generator. "
+                            "Generate realistic production-grade bugs with precise, "
+                            "behavior-based bug descriptions that are objectively verifiable."
+                        )
+                    },
                     {
                         "role": "user",
                         "content": prompt
