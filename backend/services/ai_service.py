@@ -580,7 +580,7 @@ def evaluate_bug_fix(
 ) -> dict:
 
     prompt = f"""
-You are a STRICT bug-fix evaluator.
+"You are an automated bug-fix judge."
 
 Your ONLY job is to verify whether the ORIGINAL known bugs were fixed.
 
@@ -631,6 +631,12 @@ VERY IMPORTANT RULES
    - maximum score 20
 9. DO NOT act like a senior reviewer.
 10. Act like an online coding platform judge.
+11. If the original bug no longer exists,
+    it MUST be considered fixed even if the implementation is imperfect.
+12. For EACH original bug:
+    - check whether it still exists
+    - if removed -> mark fixed
+    - if still present -> mark missed
 
 ========================
 RETURN RULES
@@ -659,18 +665,26 @@ RETURN FORMAT
 
     "feedback": "short evaluation summary",
 
-    "extra_issues_introduced": []
+    
 }}
 """
 
     response = client.chat.completions.create(
         model=MODEL,
         messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
+    {
+        "role": "system",
+        "content": (
+            "You ONLY verify whether listed bugs were fixed. "
+            "You do NOT perform general code review. "
+            "Do NOT invent new bugs or reduce scores for unrelated reasons."
+        )
+    },
+    {
+        "role": "user",
+        "content": prompt
+    }
+],
         response_format={"type": "json_object"},
         max_tokens=800,
         temperature=0
