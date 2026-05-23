@@ -59,3 +59,8 @@ def root():
     return {
         "message": "Backend running"
     }
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy"
+    }
