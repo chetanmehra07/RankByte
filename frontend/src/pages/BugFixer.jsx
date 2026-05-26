@@ -369,7 +369,7 @@ export default function BugFixer({ setRefreshPoints }) {
               {limitReached
                 ? "Daily AI Limit Reached"
                 : loading
-                  ? "AI is generating buggy code..."
+                  ? "generating buggy code..."
                   : "Generate Buggy Code"}
             </button>
           </div>
