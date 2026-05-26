@@ -67,22 +67,17 @@ Built using React, FastAPI, PostgreSQL, SQLAlchemy, Groq APIs, and modern cloud 
     <td width="50%" align="center">
       <img src="./screenshots/Screenshot 2026-05-22 012722.png" alt="Home Page" />
     </td>
-
     <td width="50%" align="center">
-      <img src="./screenshots/Screenshot 2026-05-22 012847.png" alt="Challenge Page" />
+      <img src="./screenshots/Screenshot 2026-05-22 012847.png" alt="Products Page" />
     </td>
-
   </tr>
-
   <tr>
     <td width="50%" align="center">
-      <img src="./screenshots/Screenshot 2026-05-22 012952.png" alt="Dashboard" />
+      <img src="./screenshots/Screenshot 2026-05-22 012952.png" alt="Cheackout Page" />
     </td>
-
     <td width="50%" align="center">
-      <img src="./screenshots/Screenshot 2026-05-22 013143.png" alt="Leaderboard" />
+      <img src="./screenshots/Screenshot 2026-05-22 013143.png" alt="History Page" />
     </td>
-
   </tr>
 </table>
 
