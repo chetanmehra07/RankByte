@@ -394,6 +394,10 @@ def update_language_mastery(
 # UPDATE STREAK
 # ======================================================
 
+# ======================================================
+# UPDATE STREAK
+# ======================================================
+
 def update_streak(
     db: Session,
     user_id: int
@@ -430,26 +434,31 @@ def update_streak(
         }
 
     # ======================================================
-    # CONSECUTIVE DAY
+    # FIRST TIME USER
     # ======================================================
 
-    # FIRST TIME USER
     if not last_active_date:
 
         user.streak_days = 1
         give_bonus = True
 
+    # ======================================================
     # CONSECUTIVE DAY
+    # ======================================================
+
     elif (today - last_active_date).days == 1:
 
         user.streak_days += 1
         give_bonus = True
 
-    # MISSED DAY
+    # ======================================================
+    # MISSED DAY → RESET STREAK
+    # ======================================================
+
     else:
 
         user.streak_days = 1
-        give_bonus = False
+        give_bonus = True
 
     # ======================================================
     # STREAK BONUS
@@ -472,12 +481,11 @@ def update_streak(
     user.last_active = get_ist_now()
 
     db.commit()
-
+    db.refresh(user)
     return {
-        "bonus_given": True,
+        "bonus_given": give_bonus,
         "streak_days": user.streak_days
     }
-
 # ======================================================
 # GET ALL LANGUAGE MASTERY
 # ======================================================

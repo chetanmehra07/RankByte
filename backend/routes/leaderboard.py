@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+import jwt
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
@@ -24,30 +25,112 @@ router = APIRouter(
 
 @router.get("/top")
 async def get_leaderboard(
+    request: Request,
+    page: int = 1,
+    limit: int = 10,
     db: Session = Depends(get_db)
 ):
 
-    top_users = (
+    offset = (page - 1) * limit
+
+    total_users = db.query(User).count()
+
+    # ======================================================
+    # OPTIONAL CURRENT USER
+    # ======================================================
+
+    current_user_rank = None
+
+    current_user = None
+
+    try:
+
+        auth_header = request.headers.get(
+            "Authorization"
+        )
+
+        if auth_header:
+
+            token = auth_header.replace(
+                "Bearer ",
+                ""
+            )
+
+            token_payload = jwt.decode(
+                token,
+                options={"verify_signature": False}
+            )
+
+            clerk_id = token_payload.get("sub")
+
+            current_user = (
+                db.query(User)
+                .filter(
+                    User.clerk_id == clerk_id
+                )
+                .first()
+            )
+
+            if current_user:
+
+                higher_users = (
+                    db.query(User)
+                    .filter(
+                        User.total_points >
+                        current_user.total_points
+                    )
+                    .count()
+                )
+
+                current_user_rank = (
+                    higher_users + 1
+                )
+
+    except:
+        pass
+
+    # ======================================================
+    # PAGINATED USERS
+    # ======================================================
+
+    users = (
         db.query(User)
         .order_by(desc(User.total_points))
-        .limit(10)
+        .offset(offset)
+        .limit(limit)
         .all()
     )
 
     data = [
-    {
-        "rank": i + 1,
-        "username": u.username,
-        "total_points": u.total_points,
-        "level": u.level,
-        "streak_days": u.streak_days
+        {
+            "rank": offset + i + 1,
+            "username": u.username,
+            "total_points": u.total_points,
+            "level": u.level,
+            "streak_days": u.streak_days
+        }
+        for i, u in enumerate(users)
+    ]
+
+    return {
+        "users": data,
+
+        "total_users": total_users,
+
+        "current_page": page,
+
+        "total_pages": (
+            total_users + limit - 1
+        ) // limit,
+
+        "current_user": {
+            "rank": current_user_rank,
+            "total_points": current_user.total_points,
+            "level": current_user.level,
+            "streak_days": current_user.streak_days,
+            "username": current_user.username
+        } if current_user else None
     }
-    for i, u in enumerate(top_users)
-]
-
-    
-
-    return data
 
 # ======================================================
 # USER POINTS HISTORY

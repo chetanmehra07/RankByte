@@ -86,7 +86,8 @@ export const syncUser = (data) => {
   return API.post("/user/sync-user", data);
 };
 
-export const getLeaderboard = () => API.get("/leaderboard/top");
+export const getLeaderboard = (page = 1, limit = 10) =>
+  API.get(`/leaderboard/top?page=${page}&limit=${limit}`);
 
 export const getPointsHistory = () => API.get("/leaderboard/history");
 
