@@ -5,7 +5,7 @@ import re
 import time
 
 client = Groq(api_key=settings.GROQ_API_KEY)
-MODEL = "llama-3.1-8b-instant"
+MODEL = "openai/gpt-oss-20b"
 
 def clean_json_response(text: str) -> dict:
     """Extract only the first valid JSON object."""
